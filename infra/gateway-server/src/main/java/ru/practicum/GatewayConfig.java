@@ -26,7 +26,7 @@ public class GatewayConfig {
                                         event.getStateTransition().getFromState(),
                                         event.getStateTransition().getToState())
                         );
-            }, "shoppingCartCB", "warehouseCB");
+            }, "categoriesCB", "eventsCB", "compilationsCB", "userCB", "adminCB", "statsCB");
         };
     }
 }
