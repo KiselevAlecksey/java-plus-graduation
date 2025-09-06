@@ -1,7 +1,6 @@
-version: '3.1'
 services:
   stats-server:
-    build: ./stats-service/service
+    build: ./stats/stats-service
     image: stats-service-image
     container_name: stats-service-container
     ports:
@@ -14,9 +13,11 @@ services:
       - SPRING_DATASOURCE_PASSWORD=admin
       - SERVER_PORT=9090
     restart: on-failure
+    networks:
+      - app_network
 
   stats-db:
-    image: postgres:16.1
+    image: postgres:latest
     container_name: stats-db-container
     ports:
       - "5432:5432"
@@ -26,12 +27,14 @@ services:
       - POSTGRES_DB=stats-db
     volumes:
       - stats-db-data:/var/lib/postgresql/data
+    networks:
+      - app_network
 
 
   ewm-service:
     ports:
       - "8080:8080"
-    build: ./main-service
+    build: ./core/main-service
     image: ewm-main-image
     container_name: ewm-main-container
     depends_on:
@@ -44,9 +47,11 @@ services:
       - SPRING_DATASOURCE_PASSWORD=admin
       - STATS_URL=http://stats-server:9090/
     restart: on-failure
+    networks:
+      - app_network
 
   ewm-db:
-    image: postgres:16.1
+    image: postgres:latest
     container_name: ewm-db-container
     ports:
       - "5433:5432"
@@ -56,7 +61,12 @@ services:
       - POSTGRES_DB=main-db
     volumes:
       - ewm-db-data:/var/lib/postgresql/data
+    networks:
+      - app_network
 
 volumes:
   ewm-db-data:
   stats-db-data:
+networks:
+  app_network:
+    driver: bridge
