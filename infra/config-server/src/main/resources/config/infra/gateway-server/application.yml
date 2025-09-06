@@ -1,0 +1,188 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        # Public routes
+        - id: categories_public_route
+          uri: lb://main-service
+          predicates:
+            - Path=/categories/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=categoriesCB
+
+        - id: events_public_route
+          uri: lb://main-service
+          predicates:
+            - Path=/events/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=eventsCB
+
+        - id: compilations_public_route
+          uri: lb://main-service
+          predicates:
+            - Path=/compilations/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=compilationsCB
+
+        # User routes (require authentication)
+        - id: user_events_route
+          uri: lb://main-service
+          predicates:
+            - Path=/users/*/events/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=userCB
+            - name: Retry
+              args:
+                retries: 2
+                series: SERVER_ERROR
+                methods: GET,POST,PUT,DELETE
+                exceptions:
+                  - org.springframework.web.reactive.function.client.WebClientRequestException
+                  - java.io.IOException
+                backoff:
+                  firstBackoff: 200ms
+                  maxBackoff: 2s
+                  factor: 2
+                  basedOnPreviousValue: false
+
+        - id: user_requests_route
+          uri: lb://main-service
+          predicates:
+            - Path=/users/*/requests/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=userCB
+
+        - id: user_subscriptions_route
+          uri: lb://main-service
+          predicates:
+            - Path=/users/*/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=userCB
+
+        # Admin routes
+        - id: admin_categories_route
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/categories/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=adminCB
+
+        - id: admin_events_route
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/events/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=adminCB
+
+        - id: admin_compilations_route
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/compilations/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=adminCB
+
+        - id: admin_users_route
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/users/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=adminCB
+
+        # Statistics routes
+        - id: stats_hit_route
+          uri: lb://stats-server
+          predicates:
+            - Path=/hit
+            - Method=POST
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=statsCB
+
+        - id: stats_get_route
+          uri: lb://stats-server
+          predicates:
+            - Path=/stats
+            - Method=GET
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=statsCB
+
+        - id: stats_event_views_route
+          uri: lb://stats-server
+          predicates:
+            - Path=/stats/event
+            - Method=GET
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=statsCB
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: DEBUG
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: TIME_BASED
+        slidingWindowSize: 60
+        failureRateThreshold: 60
+        recordExceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+  instances:
+    categoriesCB:
+      baseConfig: default
+      waitDurationInOpenState: 30000
+      permittedNumberOfCallsInHalfOpenState: 5
+      minimumNumberOfCalls: 10
+
+    eventsCB:
+      baseConfig: default
+      waitDurationInOpenState: 30000
+      permittedNumberOfCallsInHalfOpenState: 5
+      minimumNumberOfCalls: 15
+
+    compilationsCB:
+      baseConfig: default
+      waitDurationInOpenState: 30000
+      permittedNumberOfCallsInHalfOpenState: 5
+      minimumNumberOfCalls: 8
+
+    userCB:
+      baseConfig: default
+      waitDurationInOpenState: 30000
+      permittedNumberOfCallsInHalfOpenState: 5
+      minimumNumberOfCalls: 20
+
+    adminCB:
+      baseConfig: default
+      waitDurationInOpenState: 30000
+      permittedNumberOfCallsInHalfOpenState: 3
+      minimumNumberOfCalls: 5
+
+    statsCB:
+      baseConfig: default
+      waitDurationInOpenState: 30000
+      permittedNumberOfCallsInHalfOpenState: 10
+      minimumNumberOfCalls: 30
