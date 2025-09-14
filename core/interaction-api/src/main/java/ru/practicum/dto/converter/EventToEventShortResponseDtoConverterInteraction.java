@@ -11,7 +11,7 @@ import ru.practicum.model.Event;
 
 @RequiredArgsConstructor
 @Component
-public class EventToEventShortResponseDtoConverter implements Converter<Event, EventShortResponseDto> {
+public class EventToEventShortResponseDtoConverterInteraction implements Converter<Event, EventShortResponseDto> {
 
    private final UserMapperInteraction userMapper;
    private final CategoryMapperInteraction categoryMapper;

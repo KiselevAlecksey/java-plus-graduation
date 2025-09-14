@@ -6,7 +6,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.model.Compilation;
-import ru.practicum.dto.converter.EventToEventShortResponseDtoConverter;
+import ru.practicum.dto.converter.EventToEventShortResponseDtoConverterInteraction;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
 import ru.practicum.model.Location;
@@ -15,7 +15,7 @@ import ru.practicum.model.Location;
 @RequiredArgsConstructor
 @Component
 public class CompilationToCompilationDtoConverter implements Converter<Compilation, CompilationDto> {
-    private final EventToEventShortResponseDtoConverter converter;
+    private final EventToEventShortResponseDtoConverterInteraction converter;
 
     @Override
     public CompilationDto convert(Compilation source) {
