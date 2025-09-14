@@ -32,7 +32,6 @@ CREATE TABLE IF NOT EXISTS events
     published_on       TIMESTAMP WITHOUT TIME ZONE,
     state              VARCHAR(10)                 NOT NULL,
     views              BIGINT,
-    CONSTRAINT events_initiator_id_fk FOREIGN KEY (initiator_id) REFERENCES users (id),
     CONSTRAINT events_category_id_fk FOREIGN KEY (category_id) REFERENCES categories (id),
     CONSTRAINT state_values CHECK (state IN ('PENDING', 'PUBLISHED', 'CANCELED'))
 );
