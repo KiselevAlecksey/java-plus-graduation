@@ -5,6 +5,5 @@ CREATE TABLE IF NOT EXISTS requests
     created      TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     requester_id BIGINT                      NOT NULL,
     status       VARCHAR(10)                 NOT NULL,
-    CONSTRAINT requests_event_id_fk FOREIGN KEY (event_id) REFERENCES events (id),
     CONSTRAINT status_values CHECK (status IN ('PENDING', 'CONFIRMED', 'REJECTED', 'CANCELED'))
 );
