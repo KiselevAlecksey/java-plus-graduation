@@ -22,7 +22,6 @@ public record NewEventDto(
 
         @NotNull
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        @ValidEventDate
         LocalDateTime eventDate,
 
         @NotNull
