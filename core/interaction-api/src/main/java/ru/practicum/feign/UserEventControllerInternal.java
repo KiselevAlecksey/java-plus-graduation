@@ -1,0 +1,20 @@
+package ru.practicum.feign;
+
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.dto.EventFullResponseDto;
+import ru.practicum.dto.NewEventDto;
+
+public interface UserEventControllerInternal {
+    @GetMapping("{userId}/events/{id}")
+    EventFullResponseDto getEventById(@PathVariable Long userId, @PathVariable Long id);
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("{userId}/events")
+    EventFullResponseDto createEvent(@PathVariable Long userId,
+                                     @Valid @RequestBody NewEventDto event);
+
+    @GetMapping("{userId}/events")
+    EventFullResponseDto getEventByInitiatorId(@PathVariable Long userId);
+}

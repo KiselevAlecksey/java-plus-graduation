@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.category.CategoryMapper;
 import ru.practicum.event.dto.EventShortResponseDto;
 import ru.practicum.event.model.Event;
-import ru.practicum.user.dto.UserMapper;
+import ru.practicum.user.repository.UserMapper;
 
 @RequiredArgsConstructor
 @Component

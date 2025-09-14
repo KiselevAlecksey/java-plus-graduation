@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.subscription.dto.SubscriptionDto;
 import ru.practicum.subscription.model.BlackList;
 import ru.practicum.subscription.model.Subscriber;
-import ru.practicum.user.dto.UserMapper;
+import ru.practicum.user.repository.UserMapper;
 import ru.practicum.user.userAdmin.UserAdminService;
 
 import java.util.List;

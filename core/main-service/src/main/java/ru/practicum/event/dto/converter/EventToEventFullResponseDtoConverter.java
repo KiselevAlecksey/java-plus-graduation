@@ -7,7 +7,7 @@ import ru.practicum.category.CategoryMapper;
 import ru.practicum.event.dto.EventFullResponseDto;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.Location;
-import ru.practicum.user.dto.UserMapper;
+import ru.practicum.user.repository.UserMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;

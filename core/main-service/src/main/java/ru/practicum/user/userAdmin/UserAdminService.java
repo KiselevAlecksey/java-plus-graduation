@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.exception.InternalServerException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.dto.UserDto;
-import ru.practicum.user.dto.UserMapper;
+import ru.practicum.user.repository.UserMapper;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
