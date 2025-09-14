@@ -45,7 +45,7 @@ public class UserEventController {
     EventFullResponseDto createEvent(@PathVariable Long userId,
                          @Valid @RequestBody NewEventDto event) {
         log.info("Попытка создания нового события {}", event);
-        EventValidate.eventDateValidate(event);
+        //EventValidate.eventDateValidate(event);
         return service.createEvent(userId, event);
     }
 
@@ -53,7 +53,7 @@ public class UserEventController {
     EventFullResponseDto updateEvent(@PathVariable Long userId,
                          @PathVariable Long eventId,
                          @Valid @RequestBody UpdateEventUserRequest event) {
-        EventValidate.updateEventDateValidate(event);
+        //EventValidate.updateEventDateValidate(event);
         EventValidate.textLengthValidate(event);
         return service.updateEvent(userId, event, eventId);
     }
