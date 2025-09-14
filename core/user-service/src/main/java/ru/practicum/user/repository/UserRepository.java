@@ -15,6 +15,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
+    boolean existsByEmail(String email);
 
     @Query(value = "select * from users as u where u.id in (:ids) or (:ids) is null",nativeQuery = true)
     Page<User> findUsers(@Param("ids") List<Long> ids, Pageable pageable);

@@ -23,6 +23,6 @@ public class UserAdminControllerInternalImpl implements UserAdminControllerInter
 
     @GetMapping("/{userId}")
     public UserDto getUser(Long userId) {
-        return userService.getUser(userId);
+        return userService.getUserDto(userId);
     }
 }

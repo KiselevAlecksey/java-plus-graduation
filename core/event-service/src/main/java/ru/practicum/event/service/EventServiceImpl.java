@@ -20,7 +20,8 @@ import ru.practicum.enums.StateAction;
 import ru.practicum.event.EventRepository;
 import ru.practicum.event.dto.*;
 import ru.practicum.dto.EventFullResponseDto;
-import ru.practicum.dto.converter.EventToEventFullResponseDtoConverter;
+import ru.practicum.dto.converter.EventToEventFullResponseDtoConverterInteraction;
+import ru.practicum.event.dto.converter.NewEventDtoToEvent;
 import ru.practicum.event.model.Event;
 import ru.practicum.mapper.RequestMapperInteraction;
 import ru.practicum.mapper.UserMapperInteraction;
@@ -47,9 +48,10 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserFeignClient userClient;
     private final CategoryRepository categoryRepository;
+    private final NewEventDtoToEvent newEventDtoToEvent;
     @Qualifier("mvcConversionService")
     private final ConversionService converter;
-    private final EventToEventFullResponseDtoConverter listConverter;
+    private final EventToEventFullResponseDtoConverterInteraction listConverter;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final String EVENT_NOT_FOUND_MESSAGE = "Event not found";
     private final StatWebClient statisticService;
@@ -143,7 +145,7 @@ public class EventServiceImpl implements EventService {
     public EventFullResponseDto createEvent(Long userId, NewEventDto eventDto) {
         checkUserMapContainsValue(userId);
         Category category = getCategory(eventDto.category());
-        Event event = converter.convert(eventDto, Event.class);
+        Event event = newEventDtoToEvent.convert(eventDto);
         if (event == null) throw new NoResultException("Не удалось создать событие");
         event.setInitiator(userId);
         event.setCategory(category);

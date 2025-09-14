@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
-public class EventToEventFullResponseDtoConverter implements Converter<Event, EventFullResponseDto> {
+public class EventToEventFullResponseDtoConverterInteraction implements Converter<Event, EventFullResponseDto> {
 
     private final CategoryMapperInteraction categoryMapper;
     private final UserMapperInteraction userMapper;
