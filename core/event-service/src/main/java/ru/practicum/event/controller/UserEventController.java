@@ -52,7 +52,6 @@ public class UserEventController {
             @PathVariable Long userId,
             @Valid @RequestBody NewEventDto event
     ) {
-        log.info("Попытка создания нового события {}", event);
         EventValidate.eventDateValidate(event);
         return service.createEvent(userId, event);
     }
