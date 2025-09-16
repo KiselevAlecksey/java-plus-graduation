@@ -14,7 +14,7 @@ import ru.practicum.feign.UserFeignClient;
 import ru.practicum.mapper.EventMapperInteraction;
 import ru.practicum.mapper.UserMapperInteraction;
 import ru.practicum.model.User;
-import ru.practicum.subscription.dto.SubscriptionDto;
+import ru.practicum.dto.SubscriptionDto;
 import ru.practicum.subscription.mapper.SubscriptionMapper;
 import ru.practicum.subscription.model.BlackList;
 import ru.practicum.subscription.model.Subscriber;

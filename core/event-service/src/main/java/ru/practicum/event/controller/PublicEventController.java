@@ -1,15 +1,24 @@
 package ru.practicum.event.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Null;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.EventFullResponseDto;
+import ru.practicum.dto.PublicGetEventRequestDto;
+import ru.practicum.enums.EventSort;
 import ru.practicum.event.service.EventService;
+import ru.practicum.exception.BadRequestException;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static ru.practicum.utils.Constant.FORMATTER;
 
 @RestController
 @Validated
@@ -34,8 +43,26 @@ public class PublicEventController {
             @RequestParam(defaultValue = "10") Integer size,
             HttpServletRequest request
     ) {
-        return eventService.publicGetEvents(text, categories, paid, rangeStart, rangeEnd,
-                onlyAvailable, sort, from, size, request);
+        LocalDateTime start = rangeStart != null ? LocalDateTime.parse(rangeStart, FORMATTER) : null;
+        LocalDateTime end = rangeEnd != null ? LocalDateTime.parse(rangeEnd, FORMATTER) : null;
+
+        if (start != null && end != null && (start.isAfter(end))) {
+            throw new BadRequestException("Дата окончания, должна быть позже даты старта.");
+        }
+
+        return eventService.publicGetEvents(
+                PublicGetEventRequestDto.builder()
+                        .text(text)
+                        .categories(categories)
+                        .paid(paid)
+                        .rangeStart(start)
+                        .rangeEnd(end)
+                        .onlyAvailable(onlyAvailable)
+                        .sort(EventSort.valueOf(sort))
+                        .from(from)
+                        .size(size)
+                        .build()
+                , request);
     }
 
     @RestLogging

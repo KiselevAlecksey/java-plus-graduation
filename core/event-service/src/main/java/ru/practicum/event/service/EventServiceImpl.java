@@ -33,11 +33,12 @@ import ru.practicum.model.Request;
 import ru.practicum.model.User;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static ru.practicum.enums.StateAction.*;
+import static ru.practicum.utils.Constant.FORMATTER;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class EventServiceImpl implements EventService {
     @Qualifier("mvcConversionService")
     private final ConversionService converter;
     private final EventToEventFullResponseDtoConverterInteraction listConverter;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private static final String EVENT_NOT_FOUND_MESSAGE = "Event not found";
     private final StatWebClient statisticService;
     private final RequestFeignClient requestClient;
@@ -62,9 +63,7 @@ public class EventServiceImpl implements EventService {
         if (getUserFromMap(userId).isEmpty()) {
             getUserMapFromUserService();
         }
-        if (userMap.get(userId) == null) {
-            throw new NotFoundException("Пользователь c ID: " + userId + " не найден");
-        }
+        getUserFromMap(userId).orElseThrow(() -> new NotFoundException("Пользователь c ID: " + userId + " не найден"));
     }
 
     private Map<Long, User> getUserMapFromUserService() {
@@ -94,8 +93,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private Request getRequestOrGetFromRequestService(Long requestId) {
-        Optional<Request> requestOptional = getRequestFromMap(requestId);
-        if (requestOptional.isEmpty()) {
+        if (getRequestFromMap(requestId).isEmpty()) {
             getRequestMap();
         }
 
@@ -109,24 +107,7 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(from, size);
         List<Event> respEvent = eventRepository.findByInitiator(userId, pageable);
         return listConverter.convertList(respEvent.stream()
-                .map(event -> ru.practicum.model.Event.builder()
-                        .id(event.getId())
-                        .initiator(event.getInitiator())
-                        .title(event.getTitle())
-                        .category(new ru.practicum.model.Category(event.getCategory().getId(), event.getCategory().getName()))
-                        .eventDate(event.getEventDate())
-                        .location(new Location(event.getLocation().getLat(), event.getLocation().getLon()))
-                        .annotation(event.getAnnotation())
-                        .description(event.getDescription())
-                        .participantLimit(event.getParticipantLimit())
-                        .paid(event.getPaid())
-                        .requestModeration(event.getRequestModeration())
-                        .confirmedRequests(event.getConfirmedRequests())
-                        .views(event.getViews())
-                        .createdOn(event.getCreatedOn())
-                        .publishedOn(event.getPublishedOn())
-                        .state(event.getState())
-                        .build())
+                .map(getEventEventFunction())
                 .toList()
         );
     }
@@ -190,7 +171,6 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         event.setCreatedOn(LocalDateTime.now());
 
-        EventFullResponseDto event1 = converter.convert(event, EventFullResponseDto.class);
         return converter.convert(event, EventFullResponseDto.class);
     }
 
@@ -220,51 +200,49 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullResponseDto> publicGetEvents(String text,List<Long> categories, Boolean paid, String rangeStart,
-                                                      String rangeEnd, Boolean onlyAvailable,String sort,Integer from,
-                                                      Integer size, HttpServletRequest request) {
+    public List<EventFullResponseDto> publicGetEvents(
+            PublicGetEventRequestDto dto, HttpServletRequest request
+    ) {
 
-        LocalDateTime start = rangeStart != null ? LocalDateTime.parse(rangeStart, FORMATTER) : null;
-        LocalDateTime end = rangeEnd != null ? LocalDateTime.parse(rangeEnd, FORMATTER) : null;
-        if (start != null && end != null) {
-            if (start.isAfter(end))
-                throw new BadRequestException("Дата окончания, должна быть позже даты старта.");
-        }
         List<Event> events = eventRepository.findEventsPublic(
-                text,
-                categories,
-                paid,
-                start,
-                end,
+                dto.text(),
+                dto.categories(),
+                dto.paid(),
+                dto.rangeStart(),
+                dto.rangeEnd(),
                 EventState.PUBLISHED,
-                onlyAvailable,
-                PageRequest.of(from,
-                        size)
+                dto.onlyAvailable(),
+                PageRequest.of(dto.from(),
+                        dto.size())
         );
 
         hit(request.getRemoteAddr(), request.getRequestURI());
 
         return listConverter.convertList(events.stream()
-                .map(event -> ru.practicum.model.Event.builder()
-                        .id(event.getId())
-                        .initiator(event.getInitiator())
-                        .title(event.getTitle())
-                        .category(new ru.practicum.model.Category(event.getCategory().getId(), event.getCategory().getName()))
-                        .eventDate(event.getEventDate())
-                        .location(new Location(event.getLocation().getLat(), event.getLocation().getLon()))
-                        .annotation(event.getAnnotation())
-                        .description(event.getDescription())
-                        .participantLimit(event.getParticipantLimit())
-                        .paid(event.getPaid())
-                        .requestModeration(event.getRequestModeration())
-                        .confirmedRequests(event.getConfirmedRequests())
-                        .views(event.getViews())
-                        .createdOn(event.getCreatedOn())
-                        .publishedOn(event.getPublishedOn())
-                        .state(event.getState())
-                        .build())
+                .map(getEventEventFunction())
                 .toList()
         );
+    }
+
+    private static Function<Event, ru.practicum.model.Event> getEventEventFunction() {
+        return event -> ru.practicum.model.Event.builder()
+                .id(event.getId())
+                .initiator(event.getInitiator())
+                .title(event.getTitle())
+                .category(new ru.practicum.model.Category(event.getCategory().getId(), event.getCategory().getName()))
+                .eventDate(event.getEventDate())
+                .location(new Location(event.getLocation().getLat(), event.getLocation().getLon()))
+                .annotation(event.getAnnotation())
+                .description(event.getDescription())
+                .participantLimit(event.getParticipantLimit())
+                .paid(event.getPaid())
+                .requestModeration(event.getRequestModeration())
+                .confirmedRequests(event.getConfirmedRequests())
+                .views(event.getViews())
+                .createdOn(event.getCreatedOn())
+                .publishedOn(event.getPublishedOn())
+                .state(event.getState())
+                .build();
     }
 
     @Override
@@ -366,38 +344,18 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventFullResponseDto> adminGetEvents(AdminGetEventRequestDto requestParams) {
-        int from = (requestParams.from() != null) ? requestParams.from() : 0;
-        int size = (requestParams.size() != null) ? requestParams.size() : 10;
-        LocalDateTime startTime = requestParams.rangeStart() != null ? LocalDateTime.parse(requestParams.rangeStart(), FORMATTER) : null;
-        LocalDateTime endTime = requestParams.rangeEnd() != null ? LocalDateTime.parse(requestParams.rangeEnd(), FORMATTER) : null;
+
         List<Event> events = eventRepository.findEventsByAdmin(
                 requestParams.users(),
                 requestParams.states(),
                 requestParams.categories(),
-                startTime,
-                endTime,
-                PageRequest.of(from / size,
-                        size)
+                requestParams.rangeStart(),
+                requestParams.rangeEnd(),
+                PageRequest.of(requestParams.from() / requestParams.size(),
+                requestParams.size())
         );
         return listConverter.convertList(events.stream()
-                .map(event -> ru.practicum.model.Event.builder()
-                        .id(event.getId())
-                        .initiator(event.getInitiator())
-                        .title(event.getTitle())
-                        .category(new ru.practicum.model.Category(event.getCategory().getId(), event.getCategory().getName()))
-                        .eventDate(event.getEventDate())
-                        .location(new Location(event.getLocation().getLat(), event.getLocation().getLon()))
-                        .annotation(event.getAnnotation())
-                        .description(event.getDescription())
-                        .participantLimit(event.getParticipantLimit())
-                        .paid(event.getPaid())
-                        .requestModeration(event.getRequestModeration())
-                        .confirmedRequests(event.getConfirmedRequests())
-                        .views(event.getViews())
-                        .createdOn(event.getCreatedOn())
-                        .publishedOn(event.getPublishedOn())
-                        .state(event.getState())
-                        .build())
+                .map(getEventEventFunction())
                 .toList()
         );
     }

@@ -25,9 +25,7 @@ public interface EventService {
 
     EventFullResponseDto updateEvent(Long userId, UpdateEventUserRequest eventDto);
 
-    List<EventFullResponseDto> publicGetEvents(String text,List<Long> categories, Boolean paid, String rangeStart,
-                                               String rangeEnd, Boolean onlyAvailable,String sort,Integer from,
-                                               Integer size, HttpServletRequest request);
+    List<EventFullResponseDto> publicGetEvents(PublicGetEventRequestDto dto, HttpServletRequest request);
 
     EventFullResponseDto publicGetEvent(Long eventId, HttpServletRequest request);
 

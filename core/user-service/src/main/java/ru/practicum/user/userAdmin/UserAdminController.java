@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.UserDto;
 
 
@@ -21,27 +22,26 @@ import java.util.List;
 public class UserAdminController {
    private final UserAdminService userService;
 
+    @RestLogging
     @PostMapping
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
-        log.info("Попытка создания нового пользователя {}", userDto);
-        UserDto newUser = userService.createUser(userDto);
-        log.info("Пользователь создан {}", newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
     }
 
+    @RestLogging
     @GetMapping
-    public ResponseEntity<List<UserDto>> getUser(@RequestParam(required = false) List<Long> ids,
-                                                 @RequestParam(required = false, defaultValue = "0")@PositiveOrZero Integer from,
-                                                 @RequestParam(required = false, defaultValue = "10")@Positive Integer size) {
-        log.info("Запрос списка пользователей с ID: {}", ids);
+    public ResponseEntity<List<UserDto>> getUser(
+            @RequestParam(required = false) List<Long> ids,
+            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
         return ResponseEntity.ok().body(userService.getUsers(ids, from, size));
 
     }
 
+    @RestLogging
     @DeleteMapping("{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long userId) {
-        log.info("Удаление пользователя с ID: {}", userId);
         userService.deleteUser(userId);
     }
 

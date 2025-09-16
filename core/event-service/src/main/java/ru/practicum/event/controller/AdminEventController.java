@@ -26,7 +26,9 @@ public class AdminEventController {
     @RestLogging
     @GetMapping
     public List<EventFullResponseDto> adminGetEvents(AdminGetEventRequestDto requestParams) {
-        return eventService.adminGetEvents(requestParams);
+        int from = (requestParams.from() != null) ? requestParams.from() : 0;
+        int size = (requestParams.size() != null) ? requestParams.size() : 10;
+        return eventService.adminGetEvents(requestParams.toBuilder().from(from).size(size).build());
     }
 
     @RestLogging

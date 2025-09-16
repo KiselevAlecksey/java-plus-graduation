@@ -2,7 +2,7 @@ package ru.practicum.subscription.service;
 
 import ru.practicum.dto.EventShortResponseDto;
 import ru.practicum.model.User;
-import ru.practicum.subscription.dto.SubscriptionDto;
+import ru.practicum.dto.SubscriptionDto;
 import ru.practicum.subscription.model.BlackList;
 import ru.practicum.subscription.model.Subscriber;
 

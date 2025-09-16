@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.feign.UserFeignClient;
 import ru.practicum.mapper.UserMapperInteraction;
-import ru.practicum.subscription.dto.SubscriptionDto;
+import ru.practicum.dto.SubscriptionDto;
 import ru.practicum.subscription.model.BlackList;
 import ru.practicum.subscription.model.Subscriber;
 

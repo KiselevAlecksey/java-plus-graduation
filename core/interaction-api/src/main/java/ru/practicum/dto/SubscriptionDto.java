@@ -1,4 +1,4 @@
-package ru.practicum.subscription.dto;
+package ru.practicum.dto;
 
 import lombok.Data;
 import ru.practicum.dto.UserShortDto;

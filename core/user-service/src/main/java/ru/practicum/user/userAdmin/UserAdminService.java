@@ -39,11 +39,11 @@ public class UserAdminService {
         if (ids == null) {
             users = userRepository.findAll(pageable);
         } else {
-          users = userRepository.findUsers(ids,pageable);
-      }
-    return users.stream()
-            .map(userMapper::toUserDto)
-            .toList();
+            users = userRepository.findUsers(ids, pageable);
+        }
+        return users.stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     public List<UserDto> getUsers() {
@@ -53,9 +53,7 @@ public class UserAdminService {
     }
 
     public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException("Пользователь с ID: " + userId + " не найден"));
-        userRepository.delete(user);
+        userRepository.delete(getUser(userId));
     }
 
     public UserDto getUserDto(Long userId) {
