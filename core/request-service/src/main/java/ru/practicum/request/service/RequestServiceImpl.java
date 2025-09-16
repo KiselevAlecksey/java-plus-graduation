@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.EventFullResponseDto;
 import ru.practicum.dto.RequestDto;
+import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.dto.UserDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.exception.NotFoundException;
@@ -35,28 +37,86 @@ public class RequestServiceImpl implements RequestService {
     private final EventMapperInteraction eventMapper;
     private Map<Long, User> userMap = new HashMap<>();
 
-    private Map<Long, User> getUserMap() {
+    private void checkUserMapContainsValue(Long userId) {
+        if (getUserFromMap(userId).isEmpty()) {
+            getUserMapFromUserService();
+        }
+        if (userMap.get(userId) == null) {
+            throw new NotFoundException("Пользователь c ID: " + userId + " не найден");
+        }
+    }
+
+    private Map<Long, User> getUserMapFromUserService() {
         return userMap = new HashMap<>(userClient.getUsers().stream()
                 .collect(Collectors.toMap(UserDto::id, userMapper::toUser)));
     }
 
     private Optional<User> getUserFromMap(Long userId) {
-        return userMap.isEmpty() ? Optional.empty() : Optional.of(userMap.get(userId));
+        return Optional.ofNullable(userMap.getOrDefault(userId, null));
     }
 
     @Override
+    @Transactional
+    /*public RequestDto create(long userId, long eventId) {
+    // Блокируем событие для чтения/записи
+    Event event = eventRepository.findByIdWithLock(eventId)
+            .orElseThrow(() -> new NotFoundException("Event not found"));
+
+    if (!requestRepository.findAllByRequesterAndEventAndStatusNotLike(
+            userId, eventId, RequestState.CANCELED).isEmpty()) {
+        throw new NotPossibleException("Request already exists");
+    }
+
+    if (userId == event.getInitiator()) {
+        throw new NotPossibleException("User is Initiator of event");
+    }
+    if (!event.getState().equals(EventState.PUBLISHED)) {
+        throw new NotPossibleException("Event is not published");
+    }
+
+    // Проверяем лимит
+    if (event.getParticipantLimit() != 0 &&
+        event.getConfirmedRequests() >= event.getParticipantLimit()) {
+        throw new NotPossibleException("Request limit exceeded");
+    }
+
+    Request newRequest = new Request();
+    newRequest.setRequester(userId);
+    newRequest.setEvent(eventId);
+
+    if (event.getRequestModeration() && event.getParticipantLimit() != 0) {
+        newRequest.setStatus(RequestState.PENDING);
+    } else {
+        // Еще раз проверяем лимит (на случай гонки условий)
+        if (event.getParticipantLimit() != 0 &&
+            event.getConfirmedRequests() >= event.getParticipantLimit()) {
+            throw new NotPossibleException("Request limit exceeded");
+        }
+
+        newRequest.setStatus(RequestState.CONFIRMED);
+        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+        eventRepository.save(event); // Сохраняем обновленное событие
+    }
+
+    Request savedRequest = requestRepository.save(newRequest);
+    return requestMapper.toRequestDto(savedRequest);
+}*/
+
     public RequestDto create(long userId, long eventId) {
-        if (!requestRepository.findAllByRequesterAndEventAndStatusNotLike(userId, eventId,
-                RequestState.CANCELED).isEmpty())
+        if (!requestRepository.findAllByRequesterAndEventAndStatusNotLike(
+                userId, eventId, RequestState.CANCELED).isEmpty()) {
             throw new NotPossibleException("Request already exists");
+        }
+
         checkUserMapContainsValue(userId);
         Event event = getEvent(userId, eventId);
         if (userId == event.getInitiator())
             throw new NotPossibleException("User is Initiator of event");
         if (!event.getState().equals(EventState.PUBLISHED))
             throw new NotPossibleException("Event is not published");
-        if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() >= event.getParticipantLimit())
+        if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
             throw new NotPossibleException("Request limit exceeded");
+        }
         Request newRequest = new Request();
         newRequest.setRequester(userId);
         newRequest.setEvent(eventId);
@@ -65,9 +125,29 @@ public class RequestServiceImpl implements RequestService {
         } else {
             newRequest.setStatus(RequestState.CONFIRMED);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-            eventClient.createEvent(userId, eventMapper.toNewEventDto(event));
+            eventClient.updateEvent(userId, eventMapper.toUpdateEventUserRequestFromEvent(event));
         }
-        return requestMapper.toRequestDto(requestRepository.save(newRequest));
+
+        Request savedRequest = requestRepository.save(newRequest);
+        return requestMapper.toRequestDto(savedRequest);
+    }
+
+    @Override
+    public RequestDto getRequest(long requestId) {
+        return requestMapper.toRequestDto(requestRepository.findById(requestId).orElseThrow(
+                () -> new NotFoundException("Request not found with id: " + requestId))
+        );
+    }
+
+    @Override
+    public RequestDto update(RequestDto requestDto) {
+        Request existingRequest = requestRepository.findById(requestDto.id())
+                .orElseThrow(() -> new NotFoundException("Request not found with id: " + requestDto.id()));
+
+        existingRequest.setStatus(RequestState.valueOf(requestDto.status().name()));
+        Request savedRequest = requestRepository.save(existingRequest);
+
+        return requestMapper.toRequestDto(savedRequest);
     }
 
     @Override
@@ -98,18 +178,10 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private Event getEvent(long userId, long eventId) {
+        EventFullResponseDto dto = eventClient.getEventById(userId, eventId);
+
         return Optional.of(eventMapper.toEventFromEventFullResponseDto(eventClient.getEventById(userId, eventId))).orElseThrow(
                 () -> new NotFoundException("События с id = " + eventId + " не существует")
         );
-    }
-
-    private void checkUserMapContainsValue(Long userId) {
-        Optional<User> userOptional = getUserFromMap(userId);
-        if (userOptional.isEmpty()) {
-            getUserMap();
-        }
-        if (userMap.get(userId) == null) {
-            throw new NotFoundException("Пользователь c ID: " + userId + " не найден");
-        }
     }
 }

@@ -23,30 +23,30 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(name = "event_id")
     Long event;
 
     @CreationTimestamp
     private LocalDateTime created;
 
+    @Column(name = "requester_id")
     private Long requester;
 
     @Enumerated(EnumType.STRING)
     @NotNull
+    @Column(name = "status")
     RequestState status;
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Request request = (Request) o;
-        return getId() != null && Objects.equals(getId(), request.getId());
+        return Objects.equals(id, request.id);
     }
 
     @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

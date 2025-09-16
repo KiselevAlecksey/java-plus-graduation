@@ -11,7 +11,6 @@ import ru.practicum.dto.EventRequestStatusUpdateResult;
 import ru.practicum.dto.NewEventDto;
 import ru.practicum.dto.RequestDto;
 import ru.practicum.dto.*;
-import ru.practicum.event.dto.UpdateEventUserRequest;
 import ru.practicum.event.service.EventService;
 import ru.practicum.validation.EventValidate;
 
@@ -45,7 +44,7 @@ public class UserEventController {
     EventFullResponseDto createEvent(@PathVariable Long userId,
                          @Valid @RequestBody NewEventDto event) {
         log.info("Попытка создания нового события {}", event);
-        //EventValidate.eventDateValidate(event);
+        EventValidate.eventDateValidate(event);
         return service.createEvent(userId, event);
     }
 
@@ -53,19 +52,19 @@ public class UserEventController {
     EventFullResponseDto updateEvent(@PathVariable Long userId,
                          @PathVariable Long eventId,
                          @Valid @RequestBody UpdateEventUserRequest event) {
-        //EventValidate.updateEventDateValidate(event);
+        EventValidate.updateEventDateValidate(event);
         EventValidate.textLengthValidate(event);
         return service.updateEvent(userId, event, eventId);
     }
 
-    @PatchMapping("{eventId}/requests")
+    @PatchMapping("/{eventId}/requests")
     public EventRequestStatusUpdateResult updateRequest(@PathVariable Long userId, @PathVariable Long eventId,
                                                         @RequestBody EventRequestStatusUpdateRequest request) {
         log.info("Попытка изменить статуса заявок на участие в событии c ID: {} от пользователя с ID: {}", eventId, userId);
         return service.updateRequestStatus(userId, eventId, request);
     }
 
-    @GetMapping("{eventId}/requests")
+    @GetMapping("/{eventId}/requests")
     public List<RequestDto> getUserRequests(@PathVariable Long userId, @PathVariable Long eventId) {
     log.info("Получение запросов на участие в событии с ID: {} пользователя с ID: {}", eventId, userId);
     return service.getUserRequests(userId, eventId);

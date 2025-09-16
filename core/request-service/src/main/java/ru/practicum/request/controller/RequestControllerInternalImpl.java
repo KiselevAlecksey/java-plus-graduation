@@ -11,10 +11,15 @@ import java.util.Collection;
 
 @Slf4j
 @RestController
-@RequestMapping("/internal/users/{userId}/requests")
+@RequestMapping("/internal/users/requests")
 @RequiredArgsConstructor
 public class RequestControllerInternalImpl implements RequestControllerInternal {
     private final RequestService service;
+
+    @Override
+    public RequestDto getRequest(long requestId) {
+        return service.getRequest(requestId);
+    }
 
     @Override
     public Collection<RequestDto> getRequests() {
@@ -24,5 +29,10 @@ public class RequestControllerInternalImpl implements RequestControllerInternal 
     @Override
     public RequestDto save(@RequestBody RequestDto requestDto) {
         return service.create(requestDto.requester(), requestDto.event());
+    }
+
+    @Override
+    public RequestDto update(@RequestBody RequestDto requestDto) {
+        return service.update(requestDto);
     }
 }

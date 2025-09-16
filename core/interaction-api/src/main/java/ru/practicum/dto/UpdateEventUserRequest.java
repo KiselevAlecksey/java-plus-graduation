@@ -1,15 +1,18 @@
-package ru.practicum.event.dto;
+package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import ru.practicum.enums.StateAction;
-import ru.practicum.event.model.Location;
+import ru.practicum.model.Location;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record UpdateEventUserRequest(
 
+        Long id,
 
         @Size(min = 3, max = 120)
         String title,

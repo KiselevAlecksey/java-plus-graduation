@@ -3,8 +3,9 @@ package ru.practicum.validation;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
+import ru.practicum.dto.EventFullResponseDto;
 import ru.practicum.dto.NewEventDto;
-import ru.practicum.event.dto.UpdateEventUserRequest;
+import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.exception.BadRequestException;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,15 @@ import java.time.LocalDateTime;
 public class EventValidate {
 
     public static void eventDateValidate(NewEventDto dto) {
+        LocalDateTime dateTime = dto.eventDate();
+        if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
+            String messageError = "Событие должно начинаться не раньше чем через 2 часа.";
+            log.error(messageError);
+            throw new ValidationException(messageError);
+        }
+    }
+
+    public static void eventDateValidate(EventFullResponseDto dto) {
         LocalDateTime dateTime = dto.eventDate();
         if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
             String messageError = "Событие должно начинаться не раньше чем через 2 часа.";

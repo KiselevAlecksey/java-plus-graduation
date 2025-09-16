@@ -7,11 +7,18 @@ import ru.practicum.dto.RequestDto;
 import java.util.Collection;
 
 public interface RequestControllerInternal {
+
+    @GetMapping("/{requestId}")
+    RequestDto getRequest(@PathVariable long requestId);
+
     @GetMapping
     Collection<RequestDto> getRequests();
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     RequestDto save(@RequestBody RequestDto requestDto);
+
+    @PostMapping("/update")
+    RequestDto update(@RequestBody RequestDto requestDto);
 }
 

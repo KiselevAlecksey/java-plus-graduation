@@ -9,6 +9,7 @@ import ru.practicum.request.model.Request;
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
 
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "created", target = "created", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "event", target = "event")
     @Mapping(source = "requester", target = "requester")
