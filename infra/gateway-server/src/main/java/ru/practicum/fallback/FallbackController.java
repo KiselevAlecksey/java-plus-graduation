@@ -1,4 +1,4 @@
-package ru.practicum;
+package ru.practicum.fallback;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package ru.practicum;
+package ru.practicum.fallback;
 
 import java.time.LocalDateTime;
 

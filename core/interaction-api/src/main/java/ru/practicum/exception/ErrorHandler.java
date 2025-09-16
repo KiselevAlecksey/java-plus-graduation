@@ -50,23 +50,6 @@ public class ErrorHandler {
         return new ErrorResponse("Условия не соблюдены: " + e.getMessage());
     }
 
-    /*@ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleParameterNotValid(final MethodArgumentNotValidException e) {
-        log.info("Получен статус 400 Bad request {}", e.getMessage(), e);
-
-        String message = null;
-
-        FieldError fieldError = e.getBindingResult().getFieldError();
-
-        if (fieldError != null) {
-            message = fieldError.getDefaultMessage();
-        }
-
-        return new ErrorResponse("Некорректное значение параметра "
-                + e.getParameter().getParameterName() + ": ", message);
-    }*/
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadRequest(final MethodArgumentNotValidException e) {

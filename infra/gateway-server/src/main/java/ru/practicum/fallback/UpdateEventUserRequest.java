@@ -1,4 +1,4 @@
-package ru.practicum;
+package ru.practicum.fallback;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.PositiveOrZero;

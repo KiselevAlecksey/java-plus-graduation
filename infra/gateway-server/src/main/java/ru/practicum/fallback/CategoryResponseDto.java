@@ -1,4 +1,4 @@
-package ru.practicum;
+package ru.practicum.fallback;
 
 public record CategoryResponseDto(
         Long id,

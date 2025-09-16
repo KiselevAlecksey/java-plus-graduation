@@ -1,4 +1,4 @@
-package ru.practicum;
+package ru.practicum.fallback;
 
 public enum StateAction {
     SEND_TO_REVIEW,

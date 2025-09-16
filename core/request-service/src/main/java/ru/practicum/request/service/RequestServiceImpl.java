@@ -57,51 +57,6 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    /*public RequestDto create(long userId, long eventId) {
-    // Блокируем событие для чтения/записи
-    Event event = eventRepository.findByIdWithLock(eventId)
-            .orElseThrow(() -> new NotFoundException("Event not found"));
-
-    if (!requestRepository.findAllByRequesterAndEventAndStatusNotLike(
-            userId, eventId, RequestState.CANCELED).isEmpty()) {
-        throw new NotPossibleException("Request already exists");
-    }
-
-    if (userId == event.getInitiator()) {
-        throw new NotPossibleException("User is Initiator of event");
-    }
-    if (!event.getState().equals(EventState.PUBLISHED)) {
-        throw new NotPossibleException("Event is not published");
-    }
-
-    // Проверяем лимит
-    if (event.getParticipantLimit() != 0 &&
-        event.getConfirmedRequests() >= event.getParticipantLimit()) {
-        throw new NotPossibleException("Request limit exceeded");
-    }
-
-    Request newRequest = new Request();
-    newRequest.setRequester(userId);
-    newRequest.setEvent(eventId);
-
-    if (event.getRequestModeration() && event.getParticipantLimit() != 0) {
-        newRequest.setStatus(RequestState.PENDING);
-    } else {
-        // Еще раз проверяем лимит (на случай гонки условий)
-        if (event.getParticipantLimit() != 0 &&
-            event.getConfirmedRequests() >= event.getParticipantLimit()) {
-            throw new NotPossibleException("Request limit exceeded");
-        }
-
-        newRequest.setStatus(RequestState.CONFIRMED);
-        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-        eventRepository.save(event); // Сохраняем обновленное событие
-    }
-
-    Request savedRequest = requestRepository.save(newRequest);
-    return requestMapper.toRequestDto(savedRequest);
-}*/
-
     public RequestDto create(long userId, long eventId) {
         if (!requestRepository.findAllByRequesterAndEventAndStatusNotLike(
                 userId, eventId, RequestState.CANCELED).isEmpty()) {
@@ -178,10 +133,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private Event getEvent(long userId, long eventId) {
-        EventFullResponseDto dto = eventClient.getEventById(userId, eventId);
-
-        return Optional.of(eventMapper.toEventFromEventFullResponseDto(eventClient.getEventById(userId, eventId))).orElseThrow(
-                () -> new NotFoundException("События с id = " + eventId + " не существует")
-        );
+        return Optional.of(eventMapper.toEventFromEventFullResponseDto(eventClient.getEventById(userId, eventId)))
+                .orElseThrow(() -> new NotFoundException("События с id = " + eventId + " не существует"));
     }
 }
