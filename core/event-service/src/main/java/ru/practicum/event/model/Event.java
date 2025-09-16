@@ -2,7 +2,8 @@ package ru.practicum.event.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.category.model.Category;
+import lombok.experimental.FieldDefaults;
+import ru.practicum.category.Category;
 import ru.practicum.enums.EventState;
 
 import java.time.LocalDateTime;
@@ -15,46 +16,47 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "initiator_id", nullable = false)
-    private Long initiator;
+    Long initiator;
 
-    private String title;
+    String title;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    Category category;
 
-    private LocalDateTime eventDate;
+    LocalDateTime eventDate;
 
     @Embedded
-    private Location location;
+    Location location;
 
-    private String annotation;
+    String annotation;
 
-    private String description;
+    String description;
 
-    private long participantLimit;
+    long participantLimit;
 
-    private Boolean paid;
+    Boolean paid;
 
-    private Boolean requestModeration;
+    Boolean requestModeration;
 
     @Column(name = "confirmed_requests")
-    private Long confirmedRequests;
+    Long confirmedRequests;
 
     @Column(name = "views")
-    private Long views;
+    Long views;
 
-    private LocalDateTime createdOn;
+    LocalDateTime createdOn;
 
-    private LocalDateTime publishedOn;
+    LocalDateTime publishedOn;
 
     @Enumerated(EnumType.STRING)
-    private EventState state;
+    EventState state;
 }

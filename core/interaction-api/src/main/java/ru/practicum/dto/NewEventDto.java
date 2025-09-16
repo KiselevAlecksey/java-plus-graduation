@@ -40,7 +40,7 @@ public record NewEventDto(
         @PositiveOrZero
         Long participantLimit,
         Boolean paid,
-        Boolean requestModeration) {
+        Boolean requestModeration) implements EventRequest {
 
         public NewEventDto(String title, Long category, LocalDateTime eventDate,
                            Location location, String annotation, String description,

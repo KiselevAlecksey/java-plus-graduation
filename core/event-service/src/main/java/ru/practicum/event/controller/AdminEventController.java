@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.AdminGetEventRequestDto;
 import ru.practicum.dto.EventFullResponseDto;
 
@@ -22,16 +23,18 @@ import java.util.List;
 public class AdminEventController {
     private final EventService eventService;
 
+    @RestLogging
     @GetMapping
     public List<EventFullResponseDto> adminGetEvents(AdminGetEventRequestDto requestParams) {
-        log.info("Получить события, согласно условиям -> {}", requestParams);
         return eventService.adminGetEvents(requestParams);
     }
 
+    @RestLogging
     @PatchMapping("/{eventId}")
-    public EventFullResponseDto adminChangeEvent(@PathVariable Long eventId,
-                                     @RequestBody @Valid UpdateEventUserRequest eventDto) {
-        log.info("Изменить событие eventId = {}, поля -> {}", eventId, eventDto);
+    public EventFullResponseDto adminChangeEvent(
+            @PathVariable Long eventId,
+            @RequestBody @Valid UpdateEventUserRequest eventDto
+    ) {
         EventValidate.updateEventDateValidate(eventDto);
         EventValidate.textLengthValidate(eventDto);
         return eventService.adminChangeEvent(eventId, eventDto);

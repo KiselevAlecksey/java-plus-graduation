@@ -10,7 +10,6 @@ import ru.practicum.compilation.model.Compilation;
 
 @Repository
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
-
     @Query(value = "select * from compilations as c where c.pinned = (:pin) or (:pin) is null",nativeQuery = true)
     Page<Compilation> findCompilations(@Param("pin") Boolean pin, Pageable pageable);
 

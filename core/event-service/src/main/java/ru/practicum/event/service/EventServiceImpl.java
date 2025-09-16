@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitDto;
 import ru.practicum.StatWebClient;
 import ru.practicum.category.CategoryRepository;
-import ru.practicum.category.model.Category;
+import ru.practicum.category.Category;
 import ru.practicum.dto.*;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.RequestState;
@@ -80,17 +80,6 @@ public class EventServiceImpl implements EventService {
         return Optional.ofNullable(requestMap.getOrDefault(requestId, null));
     }
 
-    private Optional<Request> getRequestFromRequestService(Long requestId) {
-        return Optional.ofNullable(requestMapper.toRequest(requestClient.getRequest(requestId)));
-    }
-
-    private void updateRequestMap(Long requestId) {
-        Request request = Optional.ofNullable(requestMapper.toRequest(requestClient.getRequest(requestId))).orElseThrow(
-                () -> new NotFoundException("Запрос c ID: " + requestId + " не найден"));
-
-        requestMap.put(requestId, request);
-    }
-
     private Map<Long, Request> getRequestMap() {
         return requestMap = new HashMap<>(requestClient.getRequests().stream()
                 .collect(Collectors.toMap(RequestDto::id, requestMapper::toRequest)));
@@ -113,7 +102,6 @@ public class EventServiceImpl implements EventService {
         return getRequestFromMap(requestId).orElseThrow(
                 () -> new NotFoundException("Запрос c ID: " + requestId + " не найден"));
     }
-
 
     @Override
     public List<EventFullResponseDto> getEvents(Long userId, Integer from, Integer size) {

@@ -3,7 +3,7 @@ package ru.practicum.compilation.dto.converter;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-import ru.practicum.compilation.dto.NewCompilationDto;
+import ru.practicum.dto.NewCompilationDto;
 import ru.practicum.compilation.model.Compilation;
 
 @Component

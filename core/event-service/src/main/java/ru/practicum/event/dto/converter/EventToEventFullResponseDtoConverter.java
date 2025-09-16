@@ -24,7 +24,7 @@ public class EventToEventFullResponseDtoConverter implements Converter<Event, Ev
         return EventFullResponseDto.builder()
                 .id(source.getId())
                 .title(source.getTitle())
-                .confirmedRequests(Long.valueOf(source.getConfirmedRequests()))
+                .confirmedRequests(source.getConfirmedRequests())
                 .eventDate(source.getEventDate())
                 .annotation(source.getAnnotation())
                 .paid(source.getPaid())

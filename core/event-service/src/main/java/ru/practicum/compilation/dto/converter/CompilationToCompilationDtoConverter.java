@@ -4,7 +4,7 @@ package ru.practicum.compilation.dto.converter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-import ru.practicum.compilation.dto.CompilationDto;
+import ru.practicum.dto.CompilationDto;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.dto.converter.EventToEventShortResponseDtoConverterInteraction;
 import ru.practicum.model.Category;

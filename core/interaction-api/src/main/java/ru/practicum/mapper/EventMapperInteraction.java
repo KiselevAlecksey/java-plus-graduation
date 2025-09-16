@@ -21,5 +21,6 @@ public interface EventMapperInteraction {
     EventShortResponseDto toEventShortResponseDtoFromEventFullResponseDto(EventFullResponseDto dto);
 
     @Mapping(source = "category.id", target = "category")
+    @Mapping(target = "stateAction", ignore = true)
     UpdateEventUserRequest toUpdateEventUserRequestFromEvent(Event dto);
 }

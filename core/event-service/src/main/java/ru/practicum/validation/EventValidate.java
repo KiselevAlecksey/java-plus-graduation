@@ -3,8 +3,7 @@ package ru.practicum.validation;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
-import ru.practicum.dto.EventFullResponseDto;
-import ru.practicum.dto.NewEventDto;
+import ru.practicum.dto.EventRequest;
 import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.exception.BadRequestException;
 
@@ -13,16 +12,14 @@ import java.time.LocalDateTime;
 @Slf4j
 public class EventValidate {
 
-    public static void eventDateValidate(NewEventDto dto) {
-        LocalDateTime dateTime = dto.eventDate();
-        if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
-            String messageError = "Событие должно начинаться не раньше чем через 2 часа.";
-            log.error(messageError);
-            throw new ValidationException(messageError);
-        }
-    }
+    public static final int MIN_ANNOTATION = 20;
+    public static final int MIN_DESCRIPTION = 20;
+    public static final int MAX_DESCRIPTION = 7000;
+    public static final int MAX_ANNOTATION = 2000;
+    public static final int MIN_TITLE = 3;
+    public static final int MAX_TITLE = 120;
 
-    public static void eventDateValidate(EventFullResponseDto dto) {
+    public static void eventDateValidate(EventRequest dto) {
         LocalDateTime dateTime = dto.eventDate();
         if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
             String messageError = "Событие должно начинаться не раньше чем через 2 часа.";
@@ -43,13 +40,13 @@ public class EventValidate {
 
     public static void textLengthValidate(UpdateEventUserRequest dto) {
         if (dto.description() != null) {
-            checkLength(dto.description(), 20, 7000, "Описание");
+            checkLength(dto.description(), MIN_DESCRIPTION, MAX_DESCRIPTION, "Описание");
         }
         if (dto.annotation() != null) {
-            checkLength(dto.annotation(), 20, 2000, "Краткое описание");
+            checkLength(dto.annotation(), MIN_ANNOTATION, MAX_ANNOTATION, "Краткое описание");
         }
         if (dto.title() != null) {
-            checkLength(dto.title(), 3, 120, "Заголовок");
+            checkLength(dto.title(), MIN_TITLE, MAX_TITLE, "Заголовок");
         }
     }
 

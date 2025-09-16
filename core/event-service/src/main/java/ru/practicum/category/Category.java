@@ -1,11 +1,13 @@
-package ru.practicum.category.model;
+package ru.practicum.category;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
@@ -15,15 +17,16 @@ import java.util.Objects;
 @ToString
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @NotBlank
     @Size(max = 50)
-    private String name;
+    String name;
 
     @Override
     public final boolean equals(Object o) {

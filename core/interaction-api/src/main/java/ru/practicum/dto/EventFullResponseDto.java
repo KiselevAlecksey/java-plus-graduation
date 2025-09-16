@@ -34,6 +34,5 @@ public record EventFullResponseDto(
         LocalDateTime publishedOn,
 
         @JsonFormat(shape = JsonFormat.Shape.STRING)
-        EventState state) {
-
-}
+        EventState state
+) implements EventRequest {}

@@ -25,7 +25,6 @@ public class UserEventControllerInternalImpl implements UserEventControllerInter
         return service.getEventById(userId, id);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @Override
     public EventFullResponseDto createEvent(@PathVariable Long userId,
                          @Valid @RequestBody EventFullResponseDto event) {

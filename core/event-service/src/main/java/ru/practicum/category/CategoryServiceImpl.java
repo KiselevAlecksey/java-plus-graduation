@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.CategoryCreateDto;
 import ru.practicum.dto.CategoryResponseDto;
 import ru.practicum.dto.CategoryUpdateDto;
-import ru.practicum.category.model.Category;
 import ru.practicum.event.EventRepository;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ParameterConflictException;
@@ -21,9 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
-
     private final CategoryRepository categoryRepository;
-
     private final EventRepository eventRepository;
 
     @Override

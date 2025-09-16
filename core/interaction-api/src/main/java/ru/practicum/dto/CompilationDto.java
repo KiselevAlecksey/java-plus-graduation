@@ -1,8 +1,6 @@
-package ru.practicum.compilation.dto;
+package ru.practicum.dto;
 
 import lombok.Builder;
-import ru.practicum.dto.EventShortResponseDto;
-
 import java.util.Collection;
 
 
