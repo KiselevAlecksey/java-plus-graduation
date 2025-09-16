@@ -207,7 +207,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullResponseDto updateEvent(Long userId, UpdateEventUserRequestInteraction eventDto) {
+    public EventFullResponseDto updateEvent(Long userId, UpdateEventUserRequest eventDto) {
         checkUserMapContainsValue(userId);
         Event event = eventRepository.findById(eventDto.id()).orElseThrow(() ->
                 new NotFoundException(EVENT_NOT_FOUND_MESSAGE));
@@ -321,10 +321,8 @@ public class EventServiceImpl implements EventService {
         List<RequestDto> canceledReqs = new ArrayList<>();
 
         for (Long requestId : request.getRequestIds()) {
-            // Получаем запрос из request-service через Feign
             RequestDto requestDto = requestMapper.toRequestDto(getRequestOrGetFromRequestService(requestId));
 
-            // Проверяем статус запроса
             if (!requestDto.status().equals(RequestState.PENDING)) {
                 if (requestDto.status().equals(RequestState.CONFIRMED)) {
                     throw new NotPossibleException("Request already confirmed");
@@ -333,7 +331,6 @@ public class EventServiceImpl implements EventService {
                 }
             }
 
-            // Обрабатываем статус
             if (request.getStatus().equals("CONFIRMED")) {
                 event = processConfirmedStatus(
                         event,
@@ -360,14 +357,11 @@ public class EventServiceImpl implements EventService {
     private Event processConfirmedStatus(Event event, RequestDto requestDto,
                                          List<RequestDto> confirmedRequests) {
         if (event.getConfirmedRequests() >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
-            // Лимит достигнут - отклоняем запрос
             RequestDto canceledRequest = requestClient.update(requestDto);
             requestMap.put(requestDto.id(), requestMapper.toRequest(canceledRequest));
             confirmedRequests.add(canceledRequest);
             throw new NotPossibleException("The participant limit is reached");
         }
-
-        // Подтверждаем запрос
         RequestDto confirmedRequest = requestClient.update(requestDto);
         requestMap.put(requestDto.id(), requestMapper.toRequest(confirmedRequest));
         event.setConfirmedRequests(event.getConfirmedRequests() + 1);
@@ -377,65 +371,10 @@ public class EventServiceImpl implements EventService {
 
     private void processRejectedStatus(RequestDto requestDto,
                                        List<RequestDto> canceledReqs) {
-        // Отклоняем запрос
         RequestDto rejectedRequest = requestClient.update(requestDto);
         requestMap.put(requestDto.id(), requestMapper.toRequest(rejectedRequest));
         canceledReqs.add(rejectedRequest);
     }
-
-    /*@Override
-    @Transactional
-    public EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
-        checkUserMapContainsValue(userId);
-        Event event = getEvent(eventId);
-
-        List<RequestDto> confirmedReqs = new ArrayList<>();
-        List<RequestDto> canceledReqs = new ArrayList<>();
-
-        for (Long requestId : request.getRequestIds()) {
-            Request newRequest = getRequestOrGetFromRequestService(requestId);
-            event = processRequestStatus(request.getStatus(), event, newRequest, confirmedReqs, canceledReqs);
-        }
-
-        eventRepository.save(event);
-        return new EventRequestStatusUpdateResult(confirmedReqs, canceledReqs);
-    }
-
-    private Event processRequestStatus(String status, Event event, Request request,
-                                      List<RequestDto> confirmedReqs,
-                                      List<RequestDto> canceledReqs) {
-        if (!request.getStatus().equals(RequestState.PENDING)) {
-            if (request.getStatus().equals(RequestState.CONFIRMED)) {
-                throw new NotPossibleException("Request already confirmed");
-            } else {
-                throw new BadRequestException("Request " + request.getId() + " is not pending");
-            }
-        } else {
-            if (status.equals("CONFIRMED")) {
-                return confirmedStatus(event, request, confirmedReqs);
-            } else {
-                request.setStatus(RequestState.REJECTED);
-                canceledReqs.add(requestMapper.toRequestDto(request));
-                requestClient.update(requestMapper.toRequestDto(request));
-            }
-        }
-        return event;
-    }
-
-    private Event confirmedStatus(Event event, Request request,
-                                       List<RequestDto> confirmedRequests) {
-        if (event.getConfirmedRequests() >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
-            request.setStatus(RequestState.CANCELED);
-            confirmedRequests.add(requestMapper.toRequestDto(request));
-            requestClient.update(requestMapper.toRequestDto(request));
-            throw new NotPossibleException("The participant limit is reached");
-        }
-        request.setStatus(RequestState.CONFIRMED);
-        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-        confirmedRequests.add(requestMapper.toRequestDto(request));
-        requestClient.update(requestMapper.toRequestDto(request));
-        return eventRepository.save(event);
-    }*/
 
     @Override
     public List<EventFullResponseDto> adminGetEvents(AdminGetEventRequestDto requestParams) {
@@ -546,60 +485,7 @@ public class EventServiceImpl implements EventService {
         return category.get();
     }
 
-
     private Event updateEventFields(UpdateEventUserRequest eventDto, Event foundEvent) {
-        if (eventDto.category() != null) {
-            Category category = getCategory(eventDto.category());
-            foundEvent.setCategory(category);
-        }
-
-        if (eventDto.annotation() != null && !eventDto.annotation().isBlank()) {
-            foundEvent.setAnnotation(eventDto.annotation());
-        }
-        if (eventDto.description() != null && !eventDto.description().isBlank()) {
-            foundEvent.setDescription(eventDto.description());
-        }
-        if (eventDto.eventDate() != null) {
-            if (eventDto.eventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new ConflictException("Дата начала события не может быть раньше чем через 2 часа");
-            }
-            foundEvent.setEventDate(eventDto.eventDate());
-        }
-        if (eventDto.paid() != null) {
-            foundEvent.setPaid(eventDto.paid());
-        }
-        if (eventDto.participantLimit() != null) {
-            if (eventDto.participantLimit() < 0) {
-                throw new ValidationException("Participant limit cannot be negative");
-            }
-            foundEvent.setParticipantLimit(eventDto.participantLimit());
-        }
-        if (eventDto.requestModeration() != null) {
-            foundEvent.setRequestModeration(eventDto.requestModeration());
-        }
-        if (eventDto.title() != null && !eventDto.title().isBlank()) {
-            foundEvent.setTitle(eventDto.title());
-        }
-        if (eventDto.location() != null) {
-            if (eventDto.location().getLat() != null) {
-                foundEvent.getLocation().setLat(eventDto.location().getLat());
-            }
-            if (eventDto.location().getLon() != null) {
-                foundEvent.getLocation().setLon(eventDto.location().getLon());
-            }
-        }
-
-        if (eventDto.stateAction() != null) {
-            switch (eventDto.stateAction()) {
-                case CANCEL_REVIEW -> foundEvent.setState(EventState.CANCELED);
-                case PUBLISH_EVENT -> foundEvent.setState(EventState.PUBLISHED);
-                case SEND_TO_REVIEW -> foundEvent.setState(EventState.PENDING);
-            }
-        }
-        return foundEvent;
-    }
-
-    private Event updateEventFields(UpdateEventUserRequestInteraction eventDto, Event foundEvent) {
         if (eventDto.category() != null) {
             Category category = getCategory(eventDto.category());
             foundEvent.setCategory(category);

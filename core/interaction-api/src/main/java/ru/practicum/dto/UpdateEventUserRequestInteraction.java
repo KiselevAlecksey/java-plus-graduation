@@ -39,6 +39,4 @@ public record UpdateEventUserRequestInteraction(
         Boolean requestModeration,
         Long confirmedRequests,
         StateAction stateAction
-) {
-
-}
+) implements EventUpdateRequest {}

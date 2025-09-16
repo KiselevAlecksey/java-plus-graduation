@@ -20,7 +20,7 @@ public interface UserEventControllerInternal {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{userId}/events/update")
     EventFullResponseDto updateEvent(@PathVariable Long userId,
-                                     @Valid @RequestBody UpdateEventUserRequestInteraction event);
+                                     @Valid @RequestBody UpdateEventUserRequest event);
 
     @GetMapping("/{userId}/events")
     EventFullResponseDto getEventByInitiatorId(@PathVariable Long userId);

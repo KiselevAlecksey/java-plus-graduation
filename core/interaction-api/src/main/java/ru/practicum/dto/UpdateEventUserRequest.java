@@ -37,7 +37,6 @@ public record UpdateEventUserRequest(
 
         Boolean paid,
         Boolean requestModeration,
+        Long confirmedRequests,
         StateAction stateAction
-) {
-
-}
+) {}

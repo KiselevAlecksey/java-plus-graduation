@@ -35,7 +35,7 @@ public class UserEventControllerInternalImpl implements UserEventControllerInter
     }
 
     @Override
-    public EventFullResponseDto updateEvent(Long userId, UpdateEventUserRequestInteraction event) {
+    public EventFullResponseDto updateEvent(Long userId, UpdateEventUserRequest event) {
         return service.updateEvent(userId, event);
     }
 
