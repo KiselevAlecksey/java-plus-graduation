@@ -15,8 +15,8 @@ public interface RequestControllerInternal {
     @GetMapping("/all")
     Collection<RequestDto> getRequests();
 
-    @GetMapping
-    Collection<RequestDto> getRequestsByRequestIds(List<Long> requestIds);
+    @PostMapping("/by-ids")
+    Collection<RequestDto> getRequestsByRequestIds(@RequestBody List<Long> requestIds);
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
