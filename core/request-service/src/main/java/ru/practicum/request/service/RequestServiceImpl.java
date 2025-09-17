@@ -114,8 +114,15 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<RequestDto> getAllRequests() {
+    public List<RequestDto> getAllRequestsByIds() {
         return requestRepository.findAll().stream()
+                .map(requestMapper::toRequestDto)
+                .toList();
+    }
+
+    @Override
+    public Collection<RequestDto> getAllRequestsByIds(List<Long> requestIds) {
+        return requestRepository.findAllById(requestIds).stream()
                 .map(requestMapper::toRequestDto)
                 .toList();
     }

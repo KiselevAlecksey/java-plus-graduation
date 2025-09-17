@@ -8,6 +8,7 @@ import ru.practicum.feign.RequestControllerInternal;
 import ru.practicum.request.service.RequestService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -23,7 +24,12 @@ public class RequestControllerInternalImpl implements RequestControllerInternal 
 
     @Override
     public Collection<RequestDto> getRequests() {
-        return service.getAllRequests();
+        return service.getAllRequestsByIds();
+    }
+
+    @Override
+    public Collection<RequestDto> getRequestsByRequestIds(List<Long> requestIds) {
+        return service.getAllRequestsByIds(requestIds);
     }
 
     @Override

@@ -5,14 +5,18 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.RequestDto;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface RequestControllerInternal {
 
     @GetMapping("/{requestId}")
     RequestDto getRequest(@PathVariable long requestId);
 
-    @GetMapping
+    @GetMapping("/all")
     Collection<RequestDto> getRequests();
+
+    @GetMapping
+    Collection<RequestDto> getRequestsByRequestIds(List<Long> requestIds);
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

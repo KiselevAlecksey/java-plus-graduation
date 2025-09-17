@@ -2,6 +2,7 @@ package ru.practicum.request.service;
 
 import ru.practicum.dto.RequestDto;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface RequestService {
@@ -14,7 +15,9 @@ public interface RequestService {
 
     RequestDto cancel(long userId, long requestId);
 
-    List<RequestDto> getAllRequests();
+    List<RequestDto> getAllRequestsByIds();
+
+    Collection<RequestDto> getAllRequestsByIds(List<Long> requestIds);
 
     RequestDto update(RequestDto requestDto);
 }

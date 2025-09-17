@@ -38,7 +38,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static ru.practicum.enums.StateAction.*;
-import static ru.practicum.utils.Constant.FORMATTER;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +52,6 @@ public class EventServiceImpl implements EventService {
     @Qualifier("mvcConversionService")
     private final ConversionService converter;
     private final EventToEventFullResponseDtoConverterInteraction listConverter;
-
     private static final String EVENT_NOT_FOUND_MESSAGE = "Event not found";
     private final StatWebClient statisticService;
     private final RequestFeignClient requestClient;
@@ -66,8 +64,8 @@ public class EventServiceImpl implements EventService {
         getUserFromMap(userId).orElseThrow(() -> new NotFoundException("Пользователь c ID: " + userId + " не найден"));
     }
 
-    private Map<Long, User> getUserMapFromUserService() {
-        return userMap = new HashMap<>(userClient.getUsers().stream()
+    private void getUserMapFromUserService() {
+        userMap = new HashMap<>(userClient.getUsers().stream()
                     .collect(Collectors.toMap(UserDto::id, userMapper::toUser)));
     }
 
@@ -90,6 +88,14 @@ public class EventServiceImpl implements EventService {
                 .toList();
 
         return requests.isEmpty() ? List.of() : requests;
+    }
+
+    private Collection<RequestDto> getRequestDtoCollectionFromRequestService(List<Long> requestIds) {
+        Collection<RequestDto> requestDtos = requestClient.getRequestsByRequestIds(requestIds);
+
+        requestMap.putAll(new HashMap<>(requestDtos.stream()
+                .collect(Collectors.toMap(RequestDto::id, requestMapper::toRequest))));
+        return requestDtos;
     }
 
     private Request getRequestOrGetFromRequestService(Long requestId) {
@@ -203,7 +209,6 @@ public class EventServiceImpl implements EventService {
     public List<EventFullResponseDto> publicGetEvents(
             PublicGetEventRequestDto dto, HttpServletRequest request
     ) {
-
         List<Event> events = eventRepository.findEventsPublic(
                 dto.text(),
                 dto.categories(),
@@ -255,9 +260,11 @@ public class EventServiceImpl implements EventService {
         hit(request.getRemoteAddr(),request.getRequestURI());
 
         Long views = statisticService.getEventViews(request.getRequestURI());
+
         if (views != null) {
             event.setViews(views);
         }
+
         event = eventRepository.save(event);
         return converter.convert(event, EventFullResponseDto.class);
     }
@@ -286,8 +293,8 @@ public class EventServiceImpl implements EventService {
         List<RequestDto> confirmedReqs = new ArrayList<>();
         List<RequestDto> canceledReqs = new ArrayList<>();
 
-        for (Long requestId : request.getRequestIds()) {
-            RequestDto requestDto = requestMapper.toRequestDto(getRequestOrGetFromRequestService(requestId));
+
+        for (RequestDto requestDto : getRequestDtoCollectionFromRequestService(request.getRequestIds())) {
 
             if (!requestDto.status().equals(RequestState.PENDING)) {
                 if (requestDto.status().equals(RequestState.CONFIRMED)) {
@@ -298,7 +305,7 @@ public class EventServiceImpl implements EventService {
             }
 
             if (request.getStatus().equals("CONFIRMED")) {
-                event = processConfirmedStatus(
+                processConfirmedStatus(
                         event,
                         requestDto.toBuilder()
                                 .status(RequestState.CONFIRMED)
@@ -320,7 +327,7 @@ public class EventServiceImpl implements EventService {
         return new EventRequestStatusUpdateResult(confirmedReqs, canceledReqs);
     }
 
-    private Event processConfirmedStatus(Event event, RequestDto requestDto,
+    private void processConfirmedStatus(Event event, RequestDto requestDto,
                                          List<RequestDto> confirmedRequests) {
         if (event.getConfirmedRequests() >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
             RequestDto canceledRequest = requestClient.update(requestDto);
@@ -328,11 +335,11 @@ public class EventServiceImpl implements EventService {
             confirmedRequests.add(canceledRequest);
             throw new NotPossibleException("The participant limit is reached");
         }
+
         RequestDto confirmedRequest = requestClient.update(requestDto);
         requestMap.put(requestDto.id(), requestMapper.toRequest(confirmedRequest));
         event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         confirmedRequests.add(confirmedRequest);
-        return event;
     }
 
     private void processRejectedStatus(RequestDto requestDto,
@@ -344,7 +351,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventFullResponseDto> adminGetEvents(AdminGetEventRequestDto requestParams) {
-
         List<Event> events = eventRepository.findEventsByAdmin(
                 requestParams.users(),
                 requestParams.states(),
@@ -354,6 +360,7 @@ public class EventServiceImpl implements EventService {
                 PageRequest.of(requestParams.from() / requestParams.size(),
                 requestParams.size())
         );
+
         return listConverter.convertList(events.stream()
                 .map(getEventEventFunction())
                 .toList()
@@ -484,15 +491,6 @@ public class EventServiceImpl implements EventService {
             }
         }
         return foundEvent;
-    }
-
-    private List<String> getListOfUri(List<Event> events, String uri) {
-        return events.stream().map(Event::getId).map(id -> getUriForEvent(uri, id))
-                .collect(Collectors.toList());
-    }
-
-    private String getUriForEvent(String uri, Long eventId) {
-        return uri + "/" + eventId;
     }
 
     private void hit(String ip, String uri) {
