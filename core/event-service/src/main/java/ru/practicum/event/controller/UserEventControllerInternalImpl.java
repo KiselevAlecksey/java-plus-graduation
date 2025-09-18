@@ -25,7 +25,7 @@ public class UserEventControllerInternalImpl implements UserEventControllerInter
     @Override
     public EventFullResponseDto createEvent(
             @PathVariable Long userId,
-            @RequestBody @Valid EventFullResponseDto event
+            @Valid @RequestBody EventFullResponseDto event
     ) {
         EventValidate.eventDateValidate(event);
         return service.createEvent(userId, event);
@@ -34,7 +34,7 @@ public class UserEventControllerInternalImpl implements UserEventControllerInter
     @Override
     public EventFullResponseDto updateEvent(
             @PathVariable Long userId,
-            @RequestBody @Valid UpdateEventUserRequest event
+            @Valid @RequestBody UpdateEventUserRequest event
     ) {
         return service.updateEvent(userId, event);
     }

@@ -20,14 +20,14 @@ public class AdminCategoryController {
     @RestLogging
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponseDto create(@RequestBody @Valid CategoryCreateDto createDto) {
+    public CategoryResponseDto create(@Valid @RequestBody CategoryCreateDto createDto) {
         return categoryService.create(createDto);
     }
 
     @RestLogging
     @PatchMapping("/{categoryId}")
     public CategoryResponseDto update(
-            @RequestBody @Valid CategoryUpdateDto updateDto,
+            @Valid @RequestBody CategoryUpdateDto updateDto,
             @PathVariable long categoryId
     ) {
         return categoryService.update(new CategoryUpdateDto(categoryId, updateDto.name()));

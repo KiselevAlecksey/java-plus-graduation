@@ -23,7 +23,7 @@ public class AdminEventController {
 
     @RestLogging
     @GetMapping
-    public List<EventFullResponseDto> adminGetEvents(@RequestBody @Valid AdminGetEventRequestDto requestParams) {
+    public List<EventFullResponseDto> adminGetEvents(@Valid @ModelAttribute AdminGetEventRequestDto requestParams) {
         int from = (requestParams.from() != null) ? requestParams.from() : 0;
         int size = (requestParams.size() != null) ? requestParams.size() : 10;
         return eventService.adminGetEvents(requestParams.toBuilder().from(from).size(size).build());
@@ -33,7 +33,7 @@ public class AdminEventController {
     @PatchMapping("/{eventId}")
     public EventFullResponseDto adminChangeEvent(
             @PathVariable Long eventId,
-            @RequestBody @Valid UpdateEventUserRequest eventDto
+            @Valid @RequestBody UpdateEventUserRequest eventDto
     ) {
         EventValidate.updateEventDateValidate(eventDto);
         EventValidate.textLengthValidate(eventDto);
