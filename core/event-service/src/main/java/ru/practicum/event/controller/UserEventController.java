@@ -2,9 +2,12 @@ package ru.practicum.event.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.EventRequestStatusUpdateRequest;
@@ -17,6 +20,7 @@ import ru.practicum.validation.EventValidate;
 import java.util.List;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping(path = "/users/{userId}/events")
 @RequiredArgsConstructor
@@ -27,8 +31,8 @@ public class UserEventController {
     @GetMapping
     List<EventFullResponseDto> getEvents(
             @PathVariable Long userId,
-            @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @RequestParam(name = "size", defaultValue = "10") Integer size
+            @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(name = "size", defaultValue = "10") @Positive Integer size
     ) {
         return service.getEvents(userId, from, size);
     }
@@ -72,7 +76,7 @@ public class UserEventController {
     @PatchMapping("/{eventId}/requests")
     public EventRequestStatusUpdateResult updateRequest(
             @PathVariable Long userId, @PathVariable Long eventId,
-            @RequestBody EventRequestStatusUpdateRequest request
+            @RequestBody @Valid EventRequestStatusUpdateRequest request
     ) {
         log.info("Попытка изменить статуса заявок на участие в событии c ID: {} от пользователя с ID: {}", eventId, userId);
         return service.updateRequestStatus(userId, eventId, request);

@@ -3,12 +3,9 @@ package ru.practicum.event.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.NewEventDto;
 import ru.practicum.dto.EventFullResponseDto;
 import ru.practicum.dto.UpdateEventUserRequest;
-import ru.practicum.dto.UpdateEventUserRequestInteraction;
 import ru.practicum.event.service.EventService;
 import ru.practicum.feign.UserEventControllerInternal;
 import ru.practicum.validation.EventValidate;
@@ -26,15 +23,19 @@ public class UserEventControllerInternalImpl implements UserEventControllerInter
     }
 
     @Override
-    public EventFullResponseDto createEvent(@PathVariable Long userId,
-                         @Valid @RequestBody EventFullResponseDto event) {
-        log.info("Попытка создания нового события {}", event);
+    public EventFullResponseDto createEvent(
+            @PathVariable Long userId,
+            @RequestBody @Valid EventFullResponseDto event
+    ) {
         EventValidate.eventDateValidate(event);
         return service.createEvent(userId, event);
     }
 
     @Override
-    public EventFullResponseDto updateEvent(Long userId, UpdateEventUserRequest event) {
+    public EventFullResponseDto updateEvent(
+            @PathVariable Long userId,
+            @RequestBody @Valid UpdateEventUserRequest event
+    ) {
         return service.updateEvent(userId, event);
     }
 

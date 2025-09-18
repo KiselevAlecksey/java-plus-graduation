@@ -1,16 +1,20 @@
 package ru.practicum.subscription.model;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.util.Set;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class Subscription {
 
-    private Long userId;
+    Long userId;
 
-    private Set<Subscriber> subscribed;
+    Set<Subscriber> subscribed;
 
-    private Set<BlackList> blackList;
+    Set<BlackList> blackList;
 
 }

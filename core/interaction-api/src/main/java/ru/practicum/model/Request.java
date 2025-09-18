@@ -1,8 +1,10 @@
 package ru.practicum.model;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.enums.RequestState;
 
 import java.time.LocalDateTime;
@@ -11,14 +13,15 @@ import java.util.Objects;
 @ToString
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Request {
     Long id;
 
     Long event;
 
-    private LocalDateTime created;
+    LocalDateTime created;
 
-    private Long requester;
+    Long requester;
 
     RequestState status;
 

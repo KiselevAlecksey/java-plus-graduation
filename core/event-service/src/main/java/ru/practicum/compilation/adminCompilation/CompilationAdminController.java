@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.CompilationDto;
@@ -39,11 +38,10 @@ public class CompilationAdminController {
     @RestLogging
     @PatchMapping("{compId}")
     public ResponseEntity<CompilationDto> updateCompilation(
-            @RequestBody @Validated UpdateCompilationRequest upComp,
+            @RequestBody @Valid UpdateCompilationRequest upComp,
             @PathVariable Long compId
     ) {
-       return ResponseEntity.status(HttpStatus.OK)
-               .body(compilationAdminService.updateCompilation(upComp, compId));
+       return ResponseEntity.ok().body(compilationAdminService.updateCompilation(upComp, compId));
     }
 
 }

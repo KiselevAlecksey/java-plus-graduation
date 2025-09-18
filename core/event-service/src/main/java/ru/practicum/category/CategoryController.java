@@ -1,5 +1,7 @@
 package ru.practicum.category;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -27,8 +29,8 @@ public class CategoryController {
     @RestLogging
     @GetMapping
     public List<CategoryResponseDto> getFromSize(
-            @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "0") @Min(0) int from,
+            @RequestParam(defaultValue = "10") @Positive int size
     ) {
         return categoryService.getFromSize(from, size);
     }

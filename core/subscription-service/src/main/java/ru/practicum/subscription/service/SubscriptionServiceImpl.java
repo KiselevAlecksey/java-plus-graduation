@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.EventShortResponseDto;
 import ru.practicum.dto.UserDto;
-import ru.practicum.dto.converter.EventToEventShortResponseDtoConverterInteraction;
 import ru.practicum.enums.EventState;
 import ru.practicum.exception.ConditionsNotMetException;
 import ru.practicum.exception.NotFoundException;
@@ -32,7 +31,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final BlackListRepository blackListRepository;
     private final UserFeignClient userClient;
     private final EventFeignClient eventClient;
-    private final EventToEventShortResponseDtoConverterInteraction listConverter;
     private final SubscriptionMapper subscriptionMapper;
     private final EventMapperInteraction eventMapper;
     private Map<Long, User> userMap = new HashMap<>();

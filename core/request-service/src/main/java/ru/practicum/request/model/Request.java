@@ -2,11 +2,12 @@ package ru.practicum.request.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.proxy.HibernateProxy;
 import ru.practicum.request.enums.RequestState;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.Objects;
 @ToString
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Request {
 
     @Id
@@ -27,10 +29,10 @@ public class Request {
     Long event;
 
     @CreationTimestamp
-    private LocalDateTime created;
+    LocalDateTime created;
 
     @Column(name = "requester_id")
-    private Long requester;
+    Long requester;
 
     @Enumerated(EnumType.STRING)
     @NotNull

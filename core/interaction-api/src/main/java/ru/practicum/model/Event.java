@@ -1,6 +1,7 @@
 package ru.practicum.model;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.enums.EventState;
 
 import java.time.LocalDateTime;
@@ -11,38 +12,39 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Event {
 
-    private Long id;
+    Long id;
 
-    private Long initiator;
+    Long initiator;
 
-    private String title;
+    String title;
 
-    private Category category;
+    Category category;
 
-    private LocalDateTime eventDate;
+    LocalDateTime eventDate;
 
-    private Location location;
+    Location location;
 
-    private String annotation;
+    String annotation;
 
-    private String description;
+    String description;
 
-    private long participantLimit;
+    long participantLimit;
 
-    private Boolean paid;
+    Boolean paid;
 
-    private Boolean requestModeration;
+    Boolean requestModeration;
 
-    private Long confirmedRequests;
+    Long confirmedRequests;
 
-    private Long views;
+    Long views;
 
-    private LocalDateTime createdOn;
+    LocalDateTime createdOn;
 
-    private LocalDateTime publishedOn;
+    LocalDateTime publishedOn;
 
-    private EventState state;
+    EventState state;
 
 }

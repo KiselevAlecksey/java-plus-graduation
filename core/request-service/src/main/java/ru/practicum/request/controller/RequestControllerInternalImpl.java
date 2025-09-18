@@ -33,12 +33,12 @@ public class RequestControllerInternalImpl implements RequestControllerInternal 
     }
 
     @Override
-    public RequestDto save(@RequestBody RequestDto requestDto) {
+    public RequestDto save(RequestDto requestDto) {
         return service.create(requestDto.requester(), requestDto.event());
     }
 
     @Override
-    public RequestDto update(@RequestBody RequestDto requestDto) {
+    public RequestDto update(RequestDto requestDto) {
         return service.update(requestDto);
     }
 }

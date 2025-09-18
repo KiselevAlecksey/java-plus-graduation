@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.EventShortResponseDto;
@@ -15,12 +16,12 @@ import ru.practicum.subscription.service.SubscriptionService;
 
 import java.util.List;
 
+@Slf4j
+@Validated
 @RestController
 @RequestMapping("/users/{userId}")
 @RequiredArgsConstructor
-@Slf4j
 public class SubscriptionController {
-
     private final SubscriptionService subscriptionService;
 
     @RestLogging
@@ -48,7 +49,6 @@ public class SubscriptionController {
         blackList.setUserId(userId);
         blackList.setBlackList(blackListId);
         subscriptionService.addBlacklist(blackList);
-
     }
 
     @RestLogging

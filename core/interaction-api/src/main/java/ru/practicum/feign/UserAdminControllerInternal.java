@@ -10,5 +10,5 @@ public interface UserAdminControllerInternal {
     Collection<UserDto> getUsers();
 
     @GetMapping("/{userId}")
-    UserDto getUser(Long userId);
+    UserDto getUser(@PathVariable Long userId);
 }

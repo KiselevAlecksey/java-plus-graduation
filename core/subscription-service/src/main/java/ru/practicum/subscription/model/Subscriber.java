@@ -1,22 +1,25 @@
 package ru.practicum.subscription.model;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "subscribers")
 @ToString
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Subscriber {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "user_id")
-    private Long userId;
+    Long userId;
 
-    private Long subscriber;
+    Long subscriber;
 }

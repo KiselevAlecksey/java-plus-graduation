@@ -1,6 +1,7 @@
 package ru.practicum.model;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.Objects;
 
@@ -9,11 +10,12 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Category {
 
-    private Long id;
+    Long id;
 
-    private String name;
+    String name;
 
     @Override
     public boolean equals(Object object) {

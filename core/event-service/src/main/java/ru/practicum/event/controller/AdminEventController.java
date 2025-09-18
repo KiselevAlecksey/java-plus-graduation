@@ -3,7 +3,6 @@ package ru.practicum.event.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.AdminGetEventRequestDto;
@@ -15,9 +14,8 @@ import ru.practicum.validation.EventValidate;
 
 import java.util.List;
 
-@RestController
-@Validated
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/events")
 public class AdminEventController {
@@ -25,7 +23,7 @@ public class AdminEventController {
 
     @RestLogging
     @GetMapping
-    public List<EventFullResponseDto> adminGetEvents(AdminGetEventRequestDto requestParams) {
+    public List<EventFullResponseDto> adminGetEvents(@RequestBody @Valid AdminGetEventRequestDto requestParams) {
         int from = (requestParams.from() != null) ? requestParams.from() : 0;
         int size = (requestParams.size() != null) ? requestParams.size() : 10;
         return eventService.adminGetEvents(requestParams.toBuilder().from(from).size(size).build());
