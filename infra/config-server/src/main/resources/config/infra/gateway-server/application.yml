@@ -7,9 +7,36 @@ spring:
         locator:
           enabled: true
       routes:
+        # Internal user events routes
+        - id: internal_user_events_route
+          uri: lb://event-service
+          predicates:
+            - Path=/internal/users/*/events/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=internalCB
+
+        # Internal user requests routes
+        - id: internal_user_requests_route
+          uri: lb://request-service
+          predicates:
+            - Path=/internal/users/*/requests/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=internalCB
+
+        # Internal admin users routes
+        - id: internal_admin_users_route
+          uri: lb://user-service
+          predicates:
+            - Path=/internal/admin/users/**
+          filters:
+            - StripPrefix=0
+            - CircuitBreaker=internalCB
+
         # Public routes
         - id: categories_public_route
-          uri: lb://main-service
+          uri: lb://event-service
           predicates:
             - Path=/categories/**
           filters:
@@ -17,7 +44,7 @@ spring:
             - CircuitBreaker=categoriesCB
 
         - id: events_public_route
-          uri: lb://main-service
+          uri: lb://event-service
           predicates:
             - Path=/events/**
           filters:
@@ -25,7 +52,7 @@ spring:
             - CircuitBreaker=eventsCB
 
         - id: compilations_public_route
-          uri: lb://main-service
+          uri: lb://event-service
           predicates:
             - Path=/compilations/**
           filters:
@@ -34,7 +61,7 @@ spring:
 
         # User routes (require authentication)
         - id: user_events_route
-          uri: lb://main-service
+          uri: lb://event-service
           predicates:
             - Path=/users/*/events/**
           filters:
@@ -55,7 +82,7 @@ spring:
                   basedOnPreviousValue: false
 
         - id: user_requests_route
-          uri: lb://main-service
+          uri: lb://request-service
           predicates:
             - Path=/users/*/requests/**
           filters:
@@ -63,7 +90,7 @@ spring:
             - CircuitBreaker=userCB
 
         - id: user_subscriptions_route
-          uri: lb://main-service
+          uri: lb://subscription-service
           predicates:
             - Path=/users/*/**
           filters:
@@ -72,7 +99,7 @@ spring:
 
         # Admin routes
         - id: admin_categories_route
-          uri: lb://main-service
+          uri: lb://event-service
           predicates:
             - Path=/admin/categories/**
           filters:
@@ -80,7 +107,7 @@ spring:
             - CircuitBreaker=adminCB
 
         - id: admin_events_route
-          uri: lb://main-service
+          uri: lb://event-service
           predicates:
             - Path=/admin/events/**
           filters:
@@ -88,7 +115,7 @@ spring:
             - CircuitBreaker=adminCB
 
         - id: admin_compilations_route
-          uri: lb://main-service
+          uri: lb://event-service
           predicates:
             - Path=/admin/compilations/**
           filters:
@@ -96,7 +123,7 @@ spring:
             - CircuitBreaker=adminCB
 
         - id: admin_users_route
-          uri: lb://main-service
+          uri: lb://user-service
           predicates:
             - Path=/admin/users/**
           filters:
@@ -186,3 +213,10 @@ resilience4j:
       waitDurationInOpenState: 30000
       permittedNumberOfCallsInHalfOpenState: 10
       minimumNumberOfCalls: 30
+
+    internalCB:
+      baseConfig: default
+      waitDurationInOpenState: 10000
+      permittedNumberOfCallsInHalfOpenState: 10
+      minimumNumberOfCalls: 5
+      failureRateThreshold: 40
