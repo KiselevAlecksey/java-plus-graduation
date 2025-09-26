@@ -16,7 +16,6 @@ public class UserEventHandlerImpl implements UserEventHandler {
     private final KafkaEventProducer producer;
     private static final String USER_PRODUCER_NAME = "users";
 
-
     @Override
     public void handle(UserActionProto event) {
 
