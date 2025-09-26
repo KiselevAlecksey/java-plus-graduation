@@ -10,8 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.HitDto;
-import ru.practicum.StatWebClient;
+import ru.practicum.AnalyzerGrpcClient;
+import ru.practicum.CollectorGrpcClient;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.category.Category;
 import ru.practicum.dto.*;
@@ -23,6 +23,7 @@ import ru.practicum.dto.EventFullResponseDto;
 import ru.practicum.dto.converter.EventToEventFullResponseDtoConverterInteraction;
 import ru.practicum.event.dto.converter.NewEventDtoToEvent;
 import ru.practicum.event.model.Event;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 import ru.practicum.mapper.RequestMapperInteraction;
 import ru.practicum.mapper.UserMapperInteraction;
 import ru.practicum.exception.*;
@@ -42,6 +43,8 @@ import static ru.practicum.enums.StateAction.*;
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
+    public static final String VIEW = "ACTION_VIEW";
+    public static final String LIKE = "ACTION_LIKE";
     private Map<Long, User> userMap = new HashMap<>();
     private Map<Long, Request> requestMap = new HashMap<>();
     private final UserMapperInteraction userMapper;
@@ -53,7 +56,8 @@ public class EventServiceImpl implements EventService {
     private final ConversionService converter;
     private final EventToEventFullResponseDtoConverterInteraction listConverter;
     private static final String EVENT_NOT_FOUND_MESSAGE = "Event not found";
-    private final StatWebClient statisticService;
+    private final AnalyzerGrpcClient analyzerGrpcClient;
+    private final CollectorGrpcClient collectorGrpcClient;
     private final RequestFeignClient requestClient;
     private final RequestMapperInteraction requestMapper;
 
@@ -146,7 +150,7 @@ public class EventServiceImpl implements EventService {
         event.setCategory(category);
         event.setState(EventState.PENDING);
         event.setConfirmedRequests(0L);
-        event.setViews(0L);
+        event.setRating(0.0);
         event = eventRepository.save(event);
         event.setCreatedOn(LocalDateTime.now());
         return converter.convert(event, EventFullResponseDto.class);
@@ -173,7 +177,7 @@ public class EventServiceImpl implements EventService {
         event.setInitiator(userId);
         event.setCategory(category);
         event.setState(EventState.PENDING);
-        event.setViews(0L);
+        event.setRating(0.0);
         event = eventRepository.save(event);
         event.setCreatedOn(LocalDateTime.now());
 
@@ -221,8 +225,6 @@ public class EventServiceImpl implements EventService {
                         dto.size())
         );
 
-        hit(request.getRemoteAddr(), request.getRequestURI());
-
         return listConverter.convertList(events.stream()
                 .map(getEventEventFunction())
                 .toList()
@@ -243,7 +245,7 @@ public class EventServiceImpl implements EventService {
                 .paid(event.getPaid())
                 .requestModeration(event.getRequestModeration())
                 .confirmedRequests(event.getConfirmedRequests())
-                .views(event.getViews())
+                .rating(event.getRating())
                 .createdOn(event.getCreatedOn())
                 .publishedOn(event.getPublishedOn())
                 .state(event.getState())
@@ -251,19 +253,16 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullResponseDto publicGetEvent(Long id, HttpServletRequest request) {
-        Event event = getEvent(id);
+    public EventFullResponseDto publicGetEvent(Long eventId, Long userId, HttpServletRequest request) {
+        Event event = getEvent(eventId);
 
         if (event.getState() != EventState.PUBLISHED) {
-            throw new NotFoundException("Событие c ID: " + id + " не найдено");
+            throw new NotFoundException("Событие c ID: " + eventId + " не найдено");
         }
-        hit(request.getRemoteAddr(),request.getRequestURI());
+        collectorGrpcClient.collectUserAction(userId, eventId, VIEW);
+        Double rating = analyzerGrpcClient.getInteractionsCount(List.of(eventId)).toList().getFirst().getScore();
 
-        Long views = statisticService.getEventViews(request.getRequestURI());
-
-        if (views != null) {
-            event.setViews(views);
-        }
+        event.setRating(rating);
 
         event = eventRepository.save(event);
         return converter.convert(event, EventFullResponseDto.class);
@@ -279,6 +278,32 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullResponseDto getEventByInitiatorId(Long userId) {
         return converter.convert(eventRepository.findByInitiator(userId), EventFullResponseDto.class);
+    }
+
+    @Override
+    public void putLike(Long userId, Long eventId) {
+        if (!requestClient.checkRequestConfirmed(userId, eventId)) {
+            throw new ConditionsNotMetException("Пользователь может лайкать только посещённые им мероприятия");
+        }
+
+        collectorGrpcClient.collectUserAction(userId, eventId, LIKE);
+    }
+
+    @Override
+    public List<EventFullResponseDto> publicGetRecommendations(Long userId, Integer maxResult) {
+        Map<Long, Double> eventScoreMap = analyzerGrpcClient.getRecommendationsForUser(userId, maxResult).parallel()
+                .collect(Collectors.toMap(RecommendedEventProto::getEventId, RecommendedEventProto::getScore));
+
+        List<Event> events = eventRepository.findAllByIdIn(eventScoreMap.keySet());
+
+        return events.parallelStream()
+                .map(event -> {
+                    event.toBuilder().rating((eventScoreMap.getOrDefault(event.getId(), 0.0)));
+                    return converter.convert(event, EventFullResponseDto.class);
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(EventFullResponseDto::rating).reversed())
+                .toList();
     }
 
     @Override
@@ -491,10 +516,5 @@ public class EventServiceImpl implements EventService {
             }
         }
         return foundEvent;
-    }
-
-    private void hit(String ip, String uri) {
-        HitDto hit = new HitDto("event-service", uri, ip, LocalDateTime.now());
-        statisticService.addHit(hit);
     }
 }

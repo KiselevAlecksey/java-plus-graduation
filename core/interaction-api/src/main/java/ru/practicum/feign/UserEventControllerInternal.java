@@ -5,9 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.EventFullResponseDto;
-import ru.practicum.dto.NewEventDto;
 import ru.practicum.dto.UpdateEventUserRequest;
-import ru.practicum.dto.UpdateEventUserRequestInteraction;
 
 public interface UserEventControllerInternal {
 
