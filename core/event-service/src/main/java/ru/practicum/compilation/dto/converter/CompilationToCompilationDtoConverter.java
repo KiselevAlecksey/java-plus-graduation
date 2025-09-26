@@ -37,7 +37,7 @@ public class CompilationToCompilationDtoConverter implements Converter<Compilati
                                 .paid(event.getPaid())
                                 .requestModeration(event.getRequestModeration())
                                 .confirmedRequests(event.getConfirmedRequests())
-                                .views(event.getViews())
+                                .rating(event.getRating())
                                 .createdOn(event.getCreatedOn())
                                 .publishedOn(event.getPublishedOn())
                                 .state(event.getState())

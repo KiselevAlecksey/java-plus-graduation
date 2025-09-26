@@ -1,0 +1,47 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: aggregator
+  retry:
+    enabled: true
+
+logging:
+  level:
+    ru.yandex.practicum.telemetry: TRACE
+    org:
+      springframework: ERROR
+      appache.kafka: WARN
+
+aggregator:
+  kafka:
+    producers:
+      similarity-events:
+        properties:
+          bootstrap.servers: localhost:9092
+          client.id: "stats.aggregator"
+          key.serializer: org.apache.kafka.common.serialization.StringSerializer
+          value.serializer: ru.practicum.kafka.serializer.GeneralAvroSerializer
+          close-time: 15
+        topics:
+          - name: similarity-events
+            value: stats.events-similarity.v1
+    consumers:
+      users-events:
+        properties:
+          group.id: "aggregator-client"
+          bootstrap.servers: localhost:9092
+          client.id: "interaction.aggregator"
+          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value.deserializer: ru.practicum.kafka.serializer.UserActionDeserializer
+          enable-auto-commit: false
+          close-time: 15
+        topics:
+          - name: users-events
+            value: stats.user-actions.v1
+
+ratings:
+  view: 0.4
+  register: 0.8
+  like: 1

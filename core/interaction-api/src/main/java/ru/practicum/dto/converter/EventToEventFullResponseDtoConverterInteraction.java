@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class EventToEventFullResponseDtoConverterInteraction implements Converter<Event, EventFullResponseDto> {
-
     private final CategoryMapperInteraction categoryMapper;
     private final UserMapperInteraction userMapper;
 
@@ -36,7 +35,7 @@ public class EventToEventFullResponseDtoConverterInteraction implements Converte
                 .category(categoryMapper.toCategoryDto(source.getCategory()))
                 .initiator(userMapper.toUserShortDto(source.getInitiator()))
                 .requestModeration(source.getRequestModeration())
-                .views((source.getViews() == null) ? 0L : source.getViews())
+                .rating((source.getRating() != null) ? source.getRating() : 0L)
                 .build();
     }
 

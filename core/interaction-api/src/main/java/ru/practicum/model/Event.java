@@ -39,7 +39,7 @@ public class Event {
 
     Long confirmedRequests;
 
-    Long views;
+    Double rating;
 
     LocalDateTime createdOn;
 

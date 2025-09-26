@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.aspect.RestLogging;
@@ -67,7 +68,28 @@ public class PublicEventController {
 
     @RestLogging
     @GetMapping("/{id}")
-    EventFullResponseDto publicGetEvent(@PathVariable Long id, HttpServletRequest request) {
-        return eventService.publicGetEvent(id, request);
+    EventFullResponseDto publicGetEvent(
+            @RequestHeader("X-EWM-USER-ID") @Positive long userId,
+            @PathVariable @Positive Long id, HttpServletRequest request
+    ) {
+        return eventService.publicGetEvent(id, userId, request);
+    }
+
+    @RestLogging
+    @GetMapping("/recommendations")
+    List<EventFullResponseDto> publicGetRecommendations(
+            @RequestHeader("X-EWM-USER-ID") @Positive long userId,
+            @RequestParam(name = "maxResults", defaultValue = "10") @Positive Integer maxResults,
+            HttpServletRequest request) {
+        return eventService.publicGetRecommendations(userId, maxResults);
+    }
+
+    @PutMapping("/{eventId}/like")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void putLike(@RequestHeader("X-EWM-USER-ID") @Positive Long userId,
+                        @PathVariable @Positive Long eventId,
+                        HttpServletRequest request) {
+        eventService.putLike(userId, eventId);
+
     }
 }

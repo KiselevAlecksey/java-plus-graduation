@@ -36,7 +36,7 @@ public class EventToEventFullResponseDtoConverter implements Converter<Event, Ev
                 .category(categoryMapper.toCategoryDto(source.getCategory()))
                 .initiator(userMapper.toUserShortDto(source.getInitiator()))
                 .requestModeration(source.getRequestModeration())
-                .views((source.getViews() == null) ? 0L : source.getViews())
+                .rating((source.getRating() != null) ? source.getRating() : 0L)
                 .build();
     }
 

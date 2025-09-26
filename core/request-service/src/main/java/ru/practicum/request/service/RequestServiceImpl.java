@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.CollectorGrpcClient;
 import ru.practicum.dto.RequestDto;
 import ru.practicum.dto.UserDto;
 import ru.practicum.enums.EventState;
@@ -27,13 +28,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class RequestServiceImpl implements RequestService {
+    public static final String REGISTER = "REGISTER";
     private final RequestRepository requestRepository;
     private final UserFeignClient userClient;
     private final EventFeignClient eventClient;
     private final RequestMapper requestMapper;
     private final UserMapperInteraction userMapper;
     private final EventMapperInteraction eventMapper;
+    private final CollectorGrpcClient collectorGrpcClient;
     private Map<Long, User> userMap = new HashMap<>();
+
+    @Override
+    public boolean checkRequestConfirmed(Long userId, Long eventId) {
+        Optional<Request> request = requestRepository.findByRequesterIdAndEventId(userId, eventId);
+        return request.isPresent() && RequestState.CONFIRMED.equals(request.get().getStatus());
+    }
 
     private void checkUserMapContainsValue(Long userId) {
         if (getUserFromMap(userId).isEmpty()) {
@@ -82,6 +91,8 @@ public class RequestServiceImpl implements RequestService {
         }
 
         Request savedRequest = requestRepository.save(newRequest);
+
+        collectorGrpcClient.collectUserAction(userId, eventId, REGISTER);
         return requestMapper.toRequestDto(savedRequest);
     }
 

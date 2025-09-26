@@ -37,3 +37,11 @@ logging:
         orm:
           jdbc:
             bind: TRACE
+
+grpc:
+  client:
+    collector:
+      address:
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
