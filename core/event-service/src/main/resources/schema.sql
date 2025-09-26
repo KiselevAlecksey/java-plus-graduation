@@ -31,15 +31,7 @@ CREATE TABLE IF NOT EXISTS events
     created_on         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     published_on       TIMESTAMP WITHOUT TIME ZONE,
     state              VARCHAR(10)                 NOT NULL,
-    views              BIGINT,
+    rating             FLOAT,
     CONSTRAINT events_category_id_fk FOREIGN KEY (category_id) REFERENCES categories (id),
     CONSTRAINT state_values CHECK (state IN ('PENDING', 'PUBLISHED', 'CANCELED'))
-);
-
-CREATE TABLE IF NOT EXISTS compilations_events
-(
-    compilation_id BIGINT NOT NULL,
-    events_id      BIGINT NOT NULL,
-    CONSTRAINT compilations_events_compilation_id_fk FOREIGN KEY (compilation_id) REFERENCES compilations (id),
-    CONSTRAINT compilations_events_event_id_fk FOREIGN KEY (events_id) REFERENCES events (id)
 );

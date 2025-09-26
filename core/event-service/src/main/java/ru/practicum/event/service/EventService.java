@@ -27,11 +27,15 @@ public interface EventService {
 
     List<EventFullResponseDto> publicGetEvents(PublicGetEventRequestDto dto, HttpServletRequest request);
 
-    EventFullResponseDto publicGetEvent(Long eventId, HttpServletRequest request);
+    EventFullResponseDto publicGetEvent(Long eventId, Long userId, HttpServletRequest request);
 
     EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest request);
 
     List<RequestDto> getUserRequests(Long userId, Long eventId);
 
     EventFullResponseDto getEventByInitiatorId(Long userId);
+
+    List<EventFullResponseDto> publicGetRecommendations(Long userId, Integer maxResult);
+
+    void putLike(Long userId, Long eventId);
 }

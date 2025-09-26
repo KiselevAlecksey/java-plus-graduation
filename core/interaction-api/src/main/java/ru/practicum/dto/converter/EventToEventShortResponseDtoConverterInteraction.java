@@ -22,12 +22,11 @@ public class EventToEventShortResponseDtoConverterInteraction implements Convert
                 .id(source.getId())
                 .paid(source.getPaid())
                 .title(source.getTitle())
-                .views(source.getViews())
+                .rating(source.getRating())
                 .eventDate(source.getEventDate())
                 .annotation(source.getAnnotation())
                 .initiator(userMapper.toUserShortDto(source.getInitiator()))
                 .category(categoryMapper.toCategoryDto(source.getCategory()))
-                .views(source.getViews())
                 .build();
     }
 
