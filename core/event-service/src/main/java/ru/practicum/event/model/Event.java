@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Event {
 
@@ -50,8 +50,8 @@ public class Event {
     @Column(name = "confirmed_requests")
     Long confirmedRequests;
 
-    @Column(name = "views")
-    Long views;
+    @Column(name = "rating")
+    Double rating;
 
     LocalDateTime createdOn;
 

@@ -20,4 +20,6 @@ public interface RequestService {
     Collection<RequestDto> getAllRequestsByIds(List<Long> requestIds);
 
     RequestDto update(RequestDto requestDto);
+
+    boolean checkRequestConfirmed(Long userId, Long eventId);
 }

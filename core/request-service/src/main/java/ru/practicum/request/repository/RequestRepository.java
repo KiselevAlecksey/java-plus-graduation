@@ -5,6 +5,7 @@ import ru.practicum.request.enums.RequestState;
 import ru.practicum.request.model.Request;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RequestRepository extends JpaRepository<Request, Long> {
 
@@ -12,4 +13,5 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> findAllByRequester(long userId);
 
+    Optional<Request> findByRequesterIdAndEventId(long userId, long eventId);
 }

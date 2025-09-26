@@ -41,4 +41,9 @@ public class RequestControllerInternalImpl implements RequestControllerInternal 
     public RequestDto update(RequestDto requestDto) {
         return service.update(requestDto);
     }
+
+    @Override
+    public boolean checkRequestConfirmed(Long userId, Long eventId) {
+        return service.checkRequestConfirmed(userId, eventId);
+    }
 }
