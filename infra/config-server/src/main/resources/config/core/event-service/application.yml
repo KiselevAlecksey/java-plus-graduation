@@ -39,14 +39,16 @@ logging:
             bind: TRACE
 
 grpc:
+  server:
+    port: 0
   client:
     analyzer:
-      address:
+      address: 'discovery:///analyzer'
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
     collector:
-      address:
+      address: 'discovery:///collector'
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext

@@ -40,7 +40,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public boolean checkRequestConfirmed(Long userId, Long eventId) {
-        Optional<Request> request = requestRepository.findByRequesterIdAndEventId(userId, eventId);
+        Optional<Request> request = requestRepository.findByRequesterAndEvent(userId, eventId);
         return request.isPresent() && RequestState.CONFIRMED.equals(request.get().getStatus());
     }
 

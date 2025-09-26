@@ -4,7 +4,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.PageRequest;
@@ -296,7 +295,7 @@ public class EventServiceImpl implements EventService {
         Map<Long, Double> eventScoreMap = analyzerGrpcClient.getRecommendationsForUser(userId, maxResult).parallel()
                 .collect(Collectors.toMap(RecommendedEventProto::getEventId, RecommendedEventProto::getScore));
 
-        List<Event> events = eventRepository.findAllIn(eventScoreMap.keySet());
+        List<Event> events = eventRepository.findAllByIdIn(eventScoreMap.keySet());
 
         return events.parallelStream()
                 .map(event -> {

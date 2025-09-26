@@ -14,7 +14,7 @@ import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    List<Event> findAllIn(Set<Long> eventIds);
+    List<Event> findAllByIdIn(Set<Long> eventIds);
 
     boolean existsById(Long id);
 

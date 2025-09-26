@@ -12,11 +12,10 @@ import ru.yandex.ewm.stats.services.collector.UserActionControllerGrpc;
 
 import java.time.Instant;
 
-@Component
-@RequiredArgsConstructor
+@Service
 public class CollectorGrpcClient {
     @GrpcClient("collector")
-    private final UserActionControllerGrpc.UserActionControllerBlockingStub client;
+    UserActionControllerGrpc.UserActionControllerBlockingStub client;
 
     public Empty collectUserAction(long userId, long eventId, String action) {
        UserActionProto userAction = UserActionProto.newBuilder()

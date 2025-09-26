@@ -41,7 +41,7 @@ logging:
 grpc:
   client:
     collector:
-      address:
+      address: 'discovery:///collector'
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
