@@ -25,23 +25,23 @@ public class Event {
     @Column(name = "initiator_id", nullable = false)
     Long initiator;
 
-    @Column(name = "title", length = 120, nullable = false)  // Добавлено length = 120
+    @Column(name = "title", length = 120, nullable = false)
     String title;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     Category category;
 
-    @Column(name = "event_date", nullable = false)           // Добавлено name
+    @Column(name = "event_date", nullable = false)
     LocalDateTime eventDate;
 
     @Embedded
     Location location;
 
-    @Column(name = "annotation", length = 2000, nullable = false)  // Добавлено length = 2000
+    @Column(name = "annotation", length = 2000, nullable = false)
     String annotation;
 
-    @Column(name = "description", length = 7000, nullable = false) // Добавлено length = 7000
+    @Column(name = "description", length = 7000, nullable = false)
     String description;
 
     @Column(name = "participant_limit", nullable = false)
