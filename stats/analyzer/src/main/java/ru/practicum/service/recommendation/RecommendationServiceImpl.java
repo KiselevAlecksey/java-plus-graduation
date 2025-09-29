@@ -28,37 +28,32 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final SimilarityRepository similarityRepository;
 
     @Override
-    public Stream<RecommendedEventProto> getRecommendationsForUser(UserPredictionsRequestProto userPredictionsRequest) {
-
+    public Stream<RecommendedEventProto> getRecommendationsForUser(
+            UserPredictionsRequestProto userPredictionsRequest
+    ) {
         Sort sort = Sort.by(Sort.Order.desc("timestamp"));
         Pageable pageable = PageRequest.of(0, userPredictionsRequest.getMaxResult(), sort);
-        Collection<Long> userActionIds = userEventRepository.findByUserId(userPredictionsRequest.getUserId(), pageable).stream()
-                .map(UserEvent::getEventId)
-                .toList();
+        Collection<Long> userActionIds = getUserActionIds(userPredictionsRequest, pageable);
         if (userActionIds.isEmpty()) {
             return Stream.empty();
         }
-        Collection<Long> similarEvents = similarityRepository.getSimilarEventsForRecommended(
-                userActionIds,
-                userPredictionsRequest.getUserId(),
-                userPredictionsRequest.getMaxResult());
+        Collection<Long> similarEvents = getSimilarEvents(userPredictionsRequest, userActionIds);
 
-        Map<Long, List<NearestNeighborsProjection>> nearestNeighbors =
-                similarityRepository.getNearestNeighbors(similarEvents, userPredictionsRequest.getUserId()).stream()
-                .collect(Collectors.groupingBy(NearestNeighborsProjection::getEventId));
+        Map<Long, List<NearestNeighborsProjection>> nearestNeighbors = 
+                getNearestNeighbors(userPredictionsRequest, similarEvents);
 
-        Map<Long, Double> nearestNeighborActions = userEventRepository.findByEventIdInAndUserId(
-                        nearestNeighbors.values().stream()
-                                .flatMap(l -> l.stream()
-                                        .map(NearestNeighborsProjection::getNeighborEventId))
-                                .distinct()
-                                .toList(),
-                        userPredictionsRequest.getUserId()).stream()
-                .collect(Collectors.toMap(
-                        UserEvent::getEventId,
-                        UserEvent::getRating));
+        Map<Long, Double> nearestNeighborActions = 
+                getNearestNeighborActions(userPredictionsRequest, nearestNeighbors);
 
         Collection<RecommendedEventProto> result = new ArrayList<>();
+        return getCalculatedRecommendations(nearestNeighbors, nearestNeighborActions, result);
+    }
+
+    private static Stream<RecommendedEventProto> getCalculatedRecommendations(
+            Map<Long, List<NearestNeighborsProjection>> nearestNeighbors,
+            Map<Long, Double> nearestNeighborActions,
+            Collection<RecommendedEventProto> result
+    ) {
         for (Map.Entry<Long, List<NearestNeighborsProjection>> entry : nearestNeighbors.entrySet()) {
             double sumRating = 0.0;
             double sumSimilar = 0.0;
@@ -75,6 +70,47 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         return result.stream()
                 .sorted(Comparator.comparing(RecommendedEventProto::getScore).reversed());
+    }
+
+    private Map<Long, List<NearestNeighborsProjection>> getNearestNeighbors(
+            UserPredictionsRequestProto userPredictionsRequest, 
+            Collection<Long> similarEvents
+    ) {
+        return similarityRepository.getNearestNeighbors(similarEvents, userPredictionsRequest.getUserId()).stream()
+                .collect(Collectors.groupingBy(NearestNeighborsProjection::getEventId));
+    }
+
+    private List<Long> getSimilarEvents(
+            UserPredictionsRequestProto userPredictionsRequest, 
+            Collection<Long> userActionIds
+    ) {
+        return similarityRepository.getSimilarEventsForRecommended(
+                userActionIds,
+                userPredictionsRequest.getUserId(),
+                userPredictionsRequest.getMaxResult()
+        );
+    }
+
+    private List<Long> getUserActionIds(UserPredictionsRequestProto userPredictionsRequest, Pageable pageable) {
+        return userEventRepository.findByUserId(userPredictionsRequest.getUserId(), pageable).stream()
+                .map(UserEvent::getEventId)
+                .toList();
+    }
+
+    private Map<Long, Double> getNearestNeighborActions(
+            UserPredictionsRequestProto userPredictionsRequest, Map<Long, 
+            List<NearestNeighborsProjection>> nearestNeighbors
+    ) {
+        return userEventRepository.findByEventIdInAndUserId(
+                        nearestNeighbors.values().stream()
+                                .flatMap(l -> l.stream()
+                                        .map(NearestNeighborsProjection::getNeighborEventId))
+                                .distinct()
+                                .toList(),
+                        userPredictionsRequest.getUserId()).stream()
+                .collect(Collectors.toMap(
+                        UserEvent::getEventId,
+                        UserEvent::getRating));
     }
 
     @Override

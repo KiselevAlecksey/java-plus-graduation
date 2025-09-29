@@ -1,4 +1,4 @@
-package ru.practicum.service;
+package ru.practicum.service.similarity.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

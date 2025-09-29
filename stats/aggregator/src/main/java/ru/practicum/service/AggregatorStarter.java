@@ -139,19 +139,29 @@ public class AggregatorStarter {
                         putMinWeightsSums(userAction.getEventId(), eventId, newMinWeightsSums);
                     }
 
-                    double score = newMinWeightsSums / (Math.sqrt(newWeightSumEventA) * Math.sqrt(oldWeightSumEventB));
-                    long eventA = Math.min(userAction.getEventId(), eventId);
-                    long eventB = Math.max(userAction.getEventId(), eventId);
-
-                    return Optional.of(EventSimilarityAvro.newBuilder()
-                            .setEventA(eventA)
-                            .setEventB(eventB)
-                            .setScore(score)
-                            .setTimestamp(userAction.getTimestamp())
-                            .build());
+                    double score = newMinWeightsSums
+                            / (Math.sqrt(newWeightSumEventA)
+                            * Math.sqrt(oldWeightSumEventB));
+                    return getEventSimilarityAvro(userAction, eventId, score);
                 })
                 .filter(Optional::isPresent)
                 .collect(Collectors.toList());
+    }
+
+    private static Optional<EventSimilarityAvro> getEventSimilarityAvro(
+            UserActionAvro userAction,
+            Long eventId,
+            double score
+    ) {
+        long eventA = Math.min(userAction.getEventId(), eventId);
+        long eventB = Math.max(userAction.getEventId(), eventId);
+
+        return Optional.of(EventSimilarityAvro.newBuilder()
+                .setEventA(eventA)
+                .setEventB(eventB)
+                .setScore(score)
+                .setTimestamp(userAction.getTimestamp())
+                .build());
     }
 
     private void putMinWeightsSums(Long eventA, Long eventB, Double sum) {

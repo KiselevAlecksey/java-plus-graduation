@@ -318,7 +318,6 @@ public class EventServiceImpl implements EventService {
         List<RequestDto> confirmedReqs = new ArrayList<>();
         List<RequestDto> canceledReqs = new ArrayList<>();
 
-
         for (RequestDto requestDto : getRequestDtoCollectionFromRequestService(request.getRequestIds())) {
 
             if (!requestDto.status().equals(RequestState.PENDING)) {
@@ -338,7 +337,6 @@ public class EventServiceImpl implements EventService {
                         confirmedReqs
                 );
             } else {
-
                 processRejectedStatus(
                         requestDto.toBuilder()
                                 .status(RequestState.REJECTED)
@@ -352,8 +350,10 @@ public class EventServiceImpl implements EventService {
         return new EventRequestStatusUpdateResult(confirmedReqs, canceledReqs);
     }
 
-    private void processConfirmedStatus(Event event, RequestDto requestDto,
-                                         List<RequestDto> confirmedRequests) {
+    private void processConfirmedStatus(
+            Event event, RequestDto requestDto,
+            List<RequestDto> confirmedRequests
+    ) {
         if (event.getConfirmedRequests() >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
             RequestDto canceledRequest = requestClient.update(requestDto);
             requestMap.put(requestDto.id(), requestMapper.toRequest(canceledRequest));
@@ -367,8 +367,10 @@ public class EventServiceImpl implements EventService {
         confirmedRequests.add(confirmedRequest);
     }
 
-    private void processRejectedStatus(RequestDto requestDto,
-                                       List<RequestDto> canceledReqs) {
+    private void processRejectedStatus(
+            RequestDto requestDto,
+            List<RequestDto> canceledReqs
+    ) {
         RequestDto rejectedRequest = requestClient.update(requestDto);
         requestMap.put(requestDto.id(), requestMapper.toRequest(rejectedRequest));
         canceledReqs.add(rejectedRequest);
