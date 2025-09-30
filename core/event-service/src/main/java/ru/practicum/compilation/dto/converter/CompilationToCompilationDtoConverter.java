@@ -1,6 +1,5 @@
 package ru.practicum.compilation.dto.converter;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -10,7 +9,6 @@ import ru.practicum.dto.converter.EventToEventShortResponseDtoConverterInteracti
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
 import ru.practicum.model.Location;
-
 
 @RequiredArgsConstructor
 @Component
@@ -37,7 +35,7 @@ public class CompilationToCompilationDtoConverter implements Converter<Compilati
                                 .paid(event.getPaid())
                                 .requestModeration(event.getRequestModeration())
                                 .confirmedRequests(event.getConfirmedRequests())
-                                .views(event.getViews())
+                                .rating(event.getRating())
                                 .createdOn(event.getCreatedOn())
                                 .publishedOn(event.getPublishedOn())
                                 .state(event.getState())

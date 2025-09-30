@@ -26,6 +26,11 @@ public class Compilation {
     Long id;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "compilation_events",
+            joinColumns = @JoinColumn(name = "compilation_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
     @Fetch(FetchMode.SUBSELECT)
     @ToString.Exclude
     Collection<Event> events;

@@ -1,6 +1,5 @@
 package ru.practicum.compilation.dto.converter;
 
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 import ru.practicum.dto.NewCompilationDto;

@@ -1,21 +1,4 @@
 services:
-  stats-server:
-    build: ./stats/stats-service
-    image: stats-service-image
-    container_name: stats-service-container
-    ports:
-      - "9090:9090"
-    depends_on:
-      - stats-db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats-db
-      - SPRING_DATASOURCE_USER=admin
-      - SPRING_DATASOURCE_PASSWORD=admin
-      - SERVER_PORT=9090
-    restart: on-failure
-    networks:
-      - app_network
-
   stats-db:
     image: postgres:latest
     container_name: stats-db-container
@@ -27,28 +10,9 @@ services:
       - POSTGRES_DB=stats-db
     volumes:
       - stats-db-data:/var/lib/postgresql/data
+    command: ["postgres", "-c", "log_statement=all"]
     networks:
-      - app_network
-
-
-  ewm-service:
-    ports:
-      - "8080:8080"
-    build: ./core/main-service
-    image: ewm-main-image
-    container_name: ewm-main-container
-    depends_on:
-      - ewm-db
-      - stats-server
-    environment:
-      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/main-db
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=admin
-      - STATS_URL=http://stats-server:9090/
-    restart: on-failure
-    networks:
-      - app_network
+      - app_network2
 
   ewm-db:
     image: postgres:latest
@@ -62,11 +26,11 @@ services:
     volumes:
       - ewm-db-data:/var/lib/postgresql/data
     networks:
-      - app_network
+      - app_network2
 
 volumes:
   ewm-db-data:
   stats-db-data:
 networks:
-  app_network:
+  app_network2:
     driver: bridge

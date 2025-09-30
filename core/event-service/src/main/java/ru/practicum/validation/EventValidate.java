@@ -2,7 +2,6 @@ package ru.practicum.validation;
 
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
-
 import ru.practicum.dto.EventRequest;
 import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.exception.BadRequestException;

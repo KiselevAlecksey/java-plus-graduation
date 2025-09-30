@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.aspect.RestLogging;
 import ru.practicum.dto.AdminGetEventRequestDto;
 import ru.practicum.dto.EventFullResponseDto;
-
 import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.event.service.EventService;
 import ru.practicum.validation.EventValidate;

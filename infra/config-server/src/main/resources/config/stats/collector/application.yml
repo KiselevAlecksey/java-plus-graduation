@@ -1,0 +1,45 @@
+server:
+  port: 0
+
+grpc:
+  server:
+    port: 0
+
+spring:
+  application:
+    name: collector
+  retry:
+    enabled: true
+  jmx:
+    enabled: true
+  management:
+    endpoints:
+      jmx:
+        exposure:
+          include: "*"
+      web:
+        exposure:
+          include: health,info
+
+logging:
+  level:
+    ru.practicum.stats: TRACE
+    org:
+      springframework: ERROR
+      appache.kafka: WARN
+
+collector:
+  kafka:
+    producers:
+      users:
+        properties:
+          bootstrap.servers: localhost:9092
+          client.id: "stats.collector.users"
+          key.serializer: org.apache.kafka.common.serialization.StringSerializer
+          value.serializer: ru.practicum.kafka.serializer.GeneralAvroSerializer
+        topics:
+          - name: user-events
+            value: stats.user-actions.v1
+    producer:
+      properties:
+        close-time: 15

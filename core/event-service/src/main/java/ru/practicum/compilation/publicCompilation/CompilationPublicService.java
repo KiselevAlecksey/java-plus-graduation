@@ -32,7 +32,7 @@ public class CompilationPublicService {
         Page<Compilation> compilations;
         Pageable pageable = PageRequest.of(from, size);
 
-        compilations = compilationRepository.findCompilations(pinned,pageable);
+        compilations = compilationRepository.findCompilations(pinned, pageable);
 
         return compilations.stream()
                 .map(comp -> converter.convert(comp, CompilationDto.class))

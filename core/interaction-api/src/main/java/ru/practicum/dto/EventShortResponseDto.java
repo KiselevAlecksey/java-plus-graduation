@@ -5,7 +5,6 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-
 @Builder(toBuilder = true)
 public record EventShortResponseDto(
 
@@ -20,6 +19,6 @@ public record EventShortResponseDto(
         String annotation,
         Boolean paid,
         Long confirmedRequests,
-        Long views
+        Double rating
 ) {
 }

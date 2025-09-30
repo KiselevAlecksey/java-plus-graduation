@@ -9,9 +9,6 @@ import ru.practicum.event.model.Event;
 import ru.practicum.mapper.UserMapperInteraction;
 import ru.practicum.model.Location;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RequiredArgsConstructor
 @Component
 public class EventToEventFullResponseDtoConverter implements Converter<Event, EventFullResponseDto> {
@@ -36,13 +33,9 @@ public class EventToEventFullResponseDtoConverter implements Converter<Event, Ev
                 .category(categoryMapper.toCategoryDto(source.getCategory()))
                 .initiator(userMapper.toUserShortDto(source.getInitiator()))
                 .requestModeration(source.getRequestModeration())
-                .views((source.getViews() == null) ? 0L : source.getViews())
+                .rating((source.getRating() != null) ? source.getRating() : 0L)
                 .build();
     }
 
-    public List<EventFullResponseDto> convertList(List<Event> sourceList) {
-        return sourceList.stream()
-                .map(this::convert)
-                .collect(Collectors.toList());
-    }
+
 }
