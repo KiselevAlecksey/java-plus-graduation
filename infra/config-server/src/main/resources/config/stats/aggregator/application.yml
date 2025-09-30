@@ -32,7 +32,7 @@ aggregator:
           max.block.ms: 10000
           retries: 1
         topics:
-          - name: similarity-events
+          - name: "similarity-events"
             value: stats.events-similarity.v1
     consumers:
       users-events:
@@ -53,8 +53,10 @@ aggregator:
           auto.offset.reset: earliest
           max.poll.records: 10
         topics:
-          - name: users-events
+          - name: "users-events"
             value: stats.user-actions.v1
+        attempt-timeout: 100ms
+        amount-part-commit: 10
 
 ratings:
   view: 0.4

@@ -27,6 +27,7 @@ import static ru.practicum.utils.Constant.FORMATTER;
 @RequestMapping("/events")
 public class PublicEventController {
     public static final String DEFAULT_SORT = "VIEWS";
+    public static final String X_EWM_USER_ID = "X-EWM-USER-ID";
     private final EventService eventService;
 
     @RestLogging
@@ -68,7 +69,7 @@ public class PublicEventController {
     @RestLogging
     @GetMapping("/{id}")
     EventFullResponseDto publicGetEvent(
-            @RequestHeader("X-EWM-USER-ID") @Positive long userId,
+            @RequestHeader(X_EWM_USER_ID) @Positive long userId,
             @PathVariable @Positive Long id, HttpServletRequest request
     ) {
         return eventService.publicGetEvent(id, userId, request);
@@ -77,7 +78,7 @@ public class PublicEventController {
     @RestLogging
     @GetMapping("/recommendations")
     List<EventFullResponseDto> publicGetRecommendations(
-            @RequestHeader("X-EWM-USER-ID") @Positive long userId,
+            @RequestHeader(X_EWM_USER_ID) @Positive long userId,
             @RequestParam(name = "maxResults", defaultValue = "10") @Positive Integer maxResults,
             HttpServletRequest request) {
         return eventService.publicGetRecommendations(userId, maxResults);
@@ -85,7 +86,7 @@ public class PublicEventController {
 
     @PutMapping("/{eventId}/like")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void putLike(@RequestHeader("X-EWM-USER-ID") @Positive Long userId,
+    public void putLike(@RequestHeader(X_EWM_USER_ID) @Positive Long userId,
                         @PathVariable @Positive Long eventId,
                         HttpServletRequest request) {
         eventService.putLike(userId, eventId);

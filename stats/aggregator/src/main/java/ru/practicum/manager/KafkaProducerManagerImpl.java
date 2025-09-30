@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ru.practicum.manager.KafkaStatus.*;
+
 @Slf4j
 @ManagedResource(objectName = "ru.yandex.practicum.telemetry.aggregator:type=Kafka,name=KafkaProducerManager",
         description = "Kafka Producers Management")
@@ -26,7 +28,7 @@ public class KafkaProducerManagerImpl implements KafkaProducerManager {
     private final KafkaProducerFactory producerFactory;
     @Value("${aggregator.kafka.producer.properties.close-time}")
     private int closeProducerTime;
-    private volatile String producerStatus = "RUNNING";
+    private volatile String producerStatus = RUNNING.name();
 
     public KafkaProducerManagerImpl(KafkaConfig kafkaConfig, KafkaProducerFactory producerFactory) {
         this.producers = new ConcurrentHashMap<>();
@@ -52,11 +54,11 @@ public class KafkaProducerManagerImpl implements KafkaProducerManager {
         });
 
         if (successCount.get() == totalCount.get()) {
-            producerStatus = "SHUTDOWN_COMPLETE";
+            producerStatus = SHUTDOWN_COMPLETE.name();
         } else if (successCount.get() > 0) {
-            producerStatus = "SHUTDOWN_PARTIAL";
+            producerStatus = SHUTDOWN_PARTIAL.name();
         } else {
-            producerStatus = "SHUTDOWN_FAILED";
+            producerStatus = SHUTDOWN_FAILED.name();
         }
     }
 

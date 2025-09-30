@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static ru.practicum.service.KafkaStatus.*;
+
 @Getter
 @Slf4j
 @Component
@@ -38,7 +40,7 @@ public class KafkaEventProducer {
     @Value("${collector.kafka.producer.properties.close-time}")
     private int closeTime;
 
-    private volatile String status = "RUNNING";
+    private volatile String status = RUNNING.name();
 
     public KafkaEventProducer(KafkaConfig config, KafkaProducerFactory factory) {
         this.producers = new ConcurrentHashMap<>();
@@ -102,11 +104,11 @@ public class KafkaEventProducer {
         });
 
         if (successCount.get() == totalCount.get()) {
-            status = "SHUTDOWN_COMPLETE";
+            status = SHUTDOWN_COMPLETE.name();
         } else if (successCount.get() > 0) {
-            status = "SHUTDOWN_PARTIAL";
+            status = SHUTDOWN_PARTIAL.name();
         } else {
-            status = "SHUTDOWN_FAILED";
+            status = SHUTDOWN_FAILED.name();
         }
     }
 

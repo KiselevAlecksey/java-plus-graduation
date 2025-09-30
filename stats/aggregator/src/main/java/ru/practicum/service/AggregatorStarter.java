@@ -10,37 +10,26 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import ru.practicum.config.KafkaConfig;
+import ru.practicum.config.RatingsConfig;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.service.client.Client;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static ru.practicum.config.KafkaConfig.CONSUMER_NAME;
+import static ru.practicum.config.KafkaConfig.PRODUCER_NAME;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AggregatorStarter {
-    private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(100);
-    private static final int AMOUNT_PART_COMMIT = 10;
-    private static final String CONSUMER_NAME = "users-events";
-    private static final String PRODUCER_NAME = "similarity-events";
-    public static final String USERS_EVENTS = "users-events";
-    public static final String SIMILARITY_EVENTS = "similarity-events";
-
-    @Value("${ratings.view:0.4}")
-    private double viewRating;
-
-    @Value("${ratings.register:0.8}")
-    private double registerRating;
-
-    @Value("${ratings.like:1.0}")
-    private double likeRating;
-
+    private final KafkaConfig kafkaConfig;
+    private final RatingsConfig ratingsConfig;
     private final Client client;
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
     private final Map<Long, Map<Long, Double>> weights = new HashMap<>();
@@ -48,14 +37,14 @@ public class AggregatorStarter {
     private final Map<Long, Double> eventWeightSums = new HashMap<>();
 
     public void start() {
+        KafkaConfig.ConsumerConfig consumerConfig = kafkaConfig.getConsumers().get(CONSUMER_NAME);
         Runtime.getRuntime().addShutdownHook(new Thread(client.getConsumer(CONSUMER_NAME)::wakeup));
-
         try {
             client.getConsumer(CONSUMER_NAME)
-                    .subscribe(List.of(client.getConsumerTopics(CONSUMER_NAME).get(USERS_EVENTS)));
+                    .subscribe(List.of(client.getConsumerTopics(CONSUMER_NAME).get(CONSUMER_NAME)));
             while (true) {
                 try {
-                    ConsumerRecords<String, SpecificRecordBase> records = client.getConsumer(CONSUMER_NAME).poll(CONSUME_ATTEMPT_TIMEOUT);
+                    ConsumerRecords<String, SpecificRecordBase> records = client.getConsumer(CONSUMER_NAME).poll(consumerConfig.getAttemptTimeout());
                     int count = 0;
                     for (ConsumerRecord<String, SpecificRecordBase> record : records) {
                         log.info("{}", record);
@@ -95,7 +84,7 @@ public class AggregatorStarter {
                 new OffsetAndMetadata(record.offset() + 1)
         );
 
-        if (count % AMOUNT_PART_COMMIT == 0) {
+        if (count % kafkaConfig.getConsumers().get(CONSUMER_NAME).getAmountPartCommit() == 0) {
             consumer.commitAsync(currentOffsets, (offsets, e) -> {
                 if (e != null) {
                     log.warn("Ошибка во время фиксации оффсетов: {}", offsets, e);
@@ -183,16 +172,16 @@ public class AggregatorStarter {
     }
 
     private void sendProducerEvent(EventSimilarityAvro event) {
-        String topic = client.getProducerTopics(PRODUCER_NAME).get(SIMILARITY_EVENTS);
+        String topic = client.getProducerTopics(PRODUCER_NAME).get(PRODUCER_NAME);
         client.getProducer(PRODUCER_NAME)
                 .send(new ProducerRecord<>(topic, event));
     }
 
     private double getRating(ActionTypeAvro type) {
         return switch (type) {
-            case VIEW -> viewRating;
-            case REGISTER -> registerRating;
-            case LIKE -> likeRating;
+            case VIEW -> ratingsConfig.getView();
+            case REGISTER -> ratingsConfig.getRegister();
+            case LIKE -> ratingsConfig.getLike();
             default -> throw new IllegalArgumentException("Unavailable action type: " + type);
         };
     }

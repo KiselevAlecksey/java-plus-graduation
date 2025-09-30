@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ru.practicum.manager.KafkaStatus.*;
+
 @Slf4j
 @ManagedResource(objectName = "ru.yandex.practicum.telemetry.aggregator:type=Kafka,name=KafkaEventConsumerManager",
         description = "Kafka Event Consumers Management")
@@ -25,7 +27,7 @@ public class KafkaConsumerManagerImpl implements KafkaConsumerManager {
     private final Map<String, Consumer<String, SpecificRecordBase>> consumers;
     private final KafkaConfig kafkaConfig;
     private final KafkaConsumerFactory consumerFactory;
-    private volatile String status = "RUNNING";
+    private volatile String status = RUNNING.name();
     @Value("${aggregator.kafka.consumer.properties.close-time}")
     private int consumerCloseTimeout;
 
@@ -65,11 +67,11 @@ public class KafkaConsumerManagerImpl implements KafkaConsumerManager {
         });
 
         if (successCount.get() == totalCount.get()) {
-            status = "SHUTDOWN_COMPLETE";
+            status = SHUTDOWN_COMPLETE.name();
         } else if (successCount.get() > 0) {
-            status = "SHUTDOWN_PARTIAL";
+            status = SHUTDOWN_PARTIAL.name();
         } else {
-            status = "SHUTDOWN_FAILED";
+            status = SHUTDOWN_FAILED.name();
         }
     }
 
@@ -105,7 +107,7 @@ public class KafkaConsumerManagerImpl implements KafkaConsumerManager {
                 consumer.pause(assignments);
             }
         });
-        status = "PAUSED";
+        status = PAUSED.name();
     }
 
     @Override
@@ -117,7 +119,7 @@ public class KafkaConsumerManagerImpl implements KafkaConsumerManager {
                 consumer.resume(assignments);
             }
         });
-        status = "RUNNING";
+        status = RUNNING.name();
     }
 
     @Override
